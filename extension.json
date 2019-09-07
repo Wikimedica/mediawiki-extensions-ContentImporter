@@ -1,0 +1,40 @@
+{
+	"name": "ContentImporter",
+	"version": "0.1a",
+	"author": [
+		"[https://wikimedi.ca/wiki/Utilisateur:Antoine_Mercier-Linteau Antoine Mercier-Linteau]"
+	],
+	"url": "https://wikimedi.ca",
+	"descriptionmsg": "contentImporter-extension-description",
+	"license-name": "GPL-3.0-or-later",
+	"type": "specialpage",
+	"requires": {
+		"MediaWiki": ">= 1.31.0"
+	},
+	"AutoloadClasses": {
+		"MediaWiki\\Extension\\ContentImporter\\ContentImporter": "ContentImporter.class.php",
+		"MediaWiki\\Extension\\ContentImporter\\SpecialContentImporter": "includes/specials/SpecialContentImporter.php",
+		"MediaWiki\\Extension\\ContentImporter\\Source": "includes/Source.php",
+		"MediaWiki\\Extension\\ContentImporter\\ContentItem": "includes/ContentItem.php",
+		"MediaWiki\\Extension\\ContentImporter\\MediaWikiContentSource": "includes/MediaWikiContentSource.php",
+		"MediaWiki\\Extension\\ContentImporter\\WikEMContentSource": "sources/WikEMContentSource.php",
+		"MediaWiki\\Extension\\ContentImporter\\WikiDocContentSource": "sources/WikiDocContentSource.php"
+	},
+	"callback": "MediaWiki\\Extension\\ContentImporter\\ContentImporter::init",
+	"ConfigRegistry": {
+		"main": "GlobalVarConfig::newInstance"
+	},
+	"config": {
+	},
+	"Hooks": {
+	},
+	"SpecialPages": {
+		"ContentImporter" : "MediaWiki\\Extension\\ContentImporter\\SpecialContentImporter"
+	},
+	"MessagesDirs": {
+		"ContentImporter": [
+			"i18n"
+		]
+	},
+	"manifest_version": 2
+}

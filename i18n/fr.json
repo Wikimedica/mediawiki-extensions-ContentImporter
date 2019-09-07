@@ -1,0 +1,19 @@
+{
+	"contentImporter-SpecialContentImporter-description": "Importer à partir d'une source",
+	"contentImporter-wikem-blacklist": "",
+	"contentImporter-wikem-skipped": "",
+	"contentImporter-wikem-imported": "",
+	"contentImporter-wikem-rules": "",
+	"contentImporter-source": "Source",
+	"contentImporter-destination": "Destination",
+	"contentImporter-buttons": "",
+	"contentImporter-preview": "Prévisualisation",
+	"contentImporter-task-template": "Invitation",
+	"contentImporter-success-save": "L'item [[$1]] a été importé avec succès",
+	"contentImporter-page-exists": "La page [[$1]] existe déjà",
+	"contentImporter-success-skip": "L'item a été sauté avec succès",
+	"contentImporter-success-postpone": "Importation reportée",
+	"contentImporter-return": "<big>< [[Spécial:ContentImporter|Retour]]</big>",
+	"tag-contentImporter-imported": "Importé avec ContentImporter",
+	"tag-contentImporter-imported-description": "Le contenu de cette page a été importé avec l'extension ContentImporter."
+}
