@@ -188,7 +188,7 @@ class ContentItem
 		$text = str_replace("-QINU`\"'".chr(0x7F), 'QINU', $text);
 		
 		// Instantiates a client.
-		/*$translate = new TranslateClient(['projectId' => 'wikimedica-conte-1560481017558']);
+		$translate = new TranslateClient(['projectId' => 'wikimedica-conte-1560481017558']);
 		
 		$result = $translate->translate($text, [
 				'source' => 'en',
@@ -196,7 +196,7 @@ class ContentItem
 				'format' => 'text'
 		]);
 		
-		$text = $result['text'];*/
+		$text = $result['text'];
 		
 		// Restore the UNIQ QINU markers.
 		$text = str_replace('UNIQref', chr(0x7F)."'\"`UNIQ--ref-", $text);

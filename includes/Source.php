@@ -70,21 +70,26 @@ abstract class Source
 	
 	public function save(ContentItem $item, $redirects = [])
 	{
+		global $wgUser;
+		
 		$this->imported[$item->title] = $item->translatedTitle;
 		
 		$item->save();
 		
+		$watchlist = \MediaWiki\MediaWikiServices::getInstance()->getWatchedItemStore();
+		
+		$watchlist->addWatch($wgUser, \Title::newFromText($item->translatedTitle));
+		
 		foreach($redirects as $r)
 		{
 			if(!$r) { continue; }
-			
-			global $wgUser;
+			if($r == $item->translatedTitle) { continue; } // Do not add a redirect that has the same name as the parent.
 			
 			$title = \Title::newFromText($r);
 			$page = \Article::newFromTitle($title, \RequestContext::getMain());
 			
 			// Save the content.
-			$status = $page->doEditContent( \ContentHandler::makeContent('#REDIRECTION [['.$r.']]', $title),
+			$status = $page->doEditContent( \ContentHandler::makeContent('#REDIRECTION [['.$item->translatedTitle.']]', $title),
 				'Création de la redirection',
 				0, // Flags
 				false, // OriginalRevId
@@ -92,6 +97,8 @@ abstract class Source
 				null,
 				[self::MODIFICATION_TAG]
 			);
+			
+			$watchlist->addWatch($wgUser, $title);
 		}
 		
 		return $this->saveArrayToPage('imported', $this->imported, 'Item importé');
