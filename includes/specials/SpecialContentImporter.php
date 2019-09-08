@@ -328,19 +328,18 @@ class SpecialContentImporter extends \FormSpecialPage
 			'placeholder' => 'wikidataID non trouvable'
 		];
 		
+		// Build the list of available classes using the source's import rules.
+		$destinationClassOptions = [];
+		foreach(array_keys($this->source->rules['classes']) as $class) { $destinationClassOptions[$class] = $class; }
+		unset($destinationClassOptions['All']);
+		
 		$form['destinationClass'] = [
 			'section' => 'destination',
 			'type' => 'radio',
 			'required' => true,
 			'label' => 'Classe ontologique',
-			'options' => [
-				'Maladie' => 'maladie',
-				'Signe clinique' => 'signe clinique',
-				'Symptôme' => 'symptôme',
-				'Médicament' => 'médicament',
-				'Concept' => 'concept'
-			],
-			'default' => false
+			'options' => $destinationClassOptions,
+			'default' => 'Concept'
 		];
 		
 		// If the item was found and the item is not being saved. Otherwise, modifications a user made before saving get erased.
@@ -349,7 +348,7 @@ class SpecialContentImporter extends \FormSpecialPage
 			if($match = $this->getRequest()->getVal('wpdestinationClass'))
 			{
 				// The user has selected a destination class.
-				$form['destinationClass']['default'] = strtolower($match);
+				$form['destinationClass']['default'] = $match;
 				$match = array_flip($form['destinationClass']['options'])[$match];
 				$this->getRequest()->unsetVal('wpdestinationContent');
 			}
@@ -363,7 +362,7 @@ class SpecialContentImporter extends \FormSpecialPage
 				}
 				else
 				{
-					$form['destinationClass']['default'] = strtolower($match);
+					$form['destinationClass']['default'] = $match;
 				}
 			}
 			
