@@ -39,13 +39,7 @@ abstract class MediaWikiContentSource extends Source
 				break;
 			}
 		}
-		
-		
-		/*if(!$json = @file_get_contents($query = $this->apiUrl.'?action=query&format=json&prop=revisions&rvprop=content|ids&titles='.str_replace(' ', '%20', $title)))
-		{
-			return false;
-		}*/
-		
+
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $this->apiUrl.'?action=query&format=json&prop=revisions&rvprop=content|ids&titles='.urlencode($title));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -61,7 +55,7 @@ abstract class MediaWikiContentSource extends Source
 		
 		$page = array_pop($json['query']['pages']);
 		
-		if(isset($page['missing'])) { return; } // The requested pages does not exist.
+		if(isset($page['missing'])) { return false; } // The requested pages does not exist.
 		 
 		
 		$item = new ContentItem(str_replace('_', ' ', $title), $page['revisions'][0]['*']);

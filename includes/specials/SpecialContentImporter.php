@@ -136,7 +136,35 @@ class SpecialContentImporter extends \FormSpecialPage
 			
 			return $form;
 		}
-				
+		
+		// Display the control buttons.		
+		$form['destinationPreview'] = [
+				'type' => 'submit',
+				'buttonlabel' => 'Rafrâchir',
+				'section' => 'buttons',
+				'flags' => ['normal']
+		];
+		
+		$form['destinationPostpone'] = [
+				'type' => 'submit',
+				'buttonlabel' => 'Reporter',
+				'section' => 'buttons',
+				'flags' => ['normal']
+		];
+		
+		$form['destinationSkip'] = [
+				'type' => 'submit',
+				'buttonlabel' => 'Sauter',
+				'section' => 'buttons',
+				'flags' => ['destructive']
+		];
+		
+		$form['destinationSave'] = [
+				'type' => 'submit',
+				'buttonlabel' => 'Ajouter',
+				'section' => 'buttons',
+		];
+		
 		$session = $this->getRequest()->getSession();
 		$success = false; // if the last importation was a success.
 		
@@ -161,6 +189,16 @@ class SpecialContentImporter extends \FormSpecialPage
 					'section' => 'source'
 			];
 			$session->remove('contentImporter-success-skip');
+		}
+		elseif($session->get('contentImporter-success-postpone'))
+		{
+			$form['success'] = [
+					'type' => 'info',
+					'default' => wfMessage('contentImporter-success-postpone')->text(),
+					'cssclass' => 'success',
+					'section' => 'source'
+			];
+			$session->remove('contentImporter-success-postpone');
 		}
 		
 		if($this->getRequest()->getMethod() == 'POST') // If this is a post request and the requested title hasn't changed.
@@ -361,38 +399,6 @@ class SpecialContentImporter extends \FormSpecialPage
 			//'required' => true
 		];
 		
-		if($item->content) // If the item was found.
-		{
-			// Display the control buttons.
-			
-			$form['destinationPreview'] = [
-				'type' => 'submit',
-				'buttonlabel' => 'Rafrâchir',
-				'section' => 'buttons',
-				'flags' => ['normal']
-			];
-			
-			$form['destinationPostpone'] = [
-					'type' => 'submit',
-					'buttonlabel' => 'Reporter',
-					'section' => 'buttons',
-					'flags' => ['normal']
-			];
-			
-			$form['destinationSkip'] = [
-					'type' => 'submit',
-					'buttonlabel' => 'Sauter',
-					'section' => 'buttons',
-					'flags' => ['destructive']
-			];
-			
-			$form['destinationSave'] = [
-				'type' => 'submit',
-				'buttonlabel' => 'Ajouter',
-				'section' => 'buttons',
-			];
-		}
-		
 		if($item->content) // If there is content to preview.
 		{
 			$parserOptions = new \ParserOptions();
@@ -408,6 +414,14 @@ class SpecialContentImporter extends \FormSpecialPage
 				'raw' => true,
 				'default' => $parserOutput->getText(['enableSectionEditLinks' => false])
 			];
+		}
+		else 
+		{
+			// Disable buttons.
+			$form['destinationPreview']['disabled'] = true;
+			$form['destinationPostpone']['disabled'] = true;
+			$form['destinationSkip']['disabled'] = true;
+			$form['destinationSave']['disabled'] = true;
 		}
 		
 		return $form;
@@ -500,24 +514,29 @@ class SpecialContentImporter extends \FormSpecialPage
 		$this->getOutput()->addInlineStyle('
 			div.oo-ui-panelLayout-padded:nth-of-type(1)
 			{
-				width: 47%;
-				float: left;
+				margin-bottom: 0;
 			}
 
 			div.oo-ui-panelLayout-padded:nth-of-type(2)
 			{
 				width: 47%;
-				float: right;
+				float: left;
 			}
 
 			div.oo-ui-panelLayout-padded:nth-of-type(3)
 			{
-				clear: both;
+				width: 47%;
+				float: right;
 			}
 
 			.oo-ui-fieldsetLayout-header:nth-of-type(3)
 			{
 				display:none;
+			}
+
+			div.oo-ui-panelLayout-padded:nth-of-type(4)
+			{
+				clear: both;
 			}
 
 			.mw-htmlform-field-HTMLSubmitField
