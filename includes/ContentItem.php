@@ -289,7 +289,7 @@ class ContentItem
 		array_walk_recursive(self::process($this->content), $func); // Flatten array.*/
 		$sections = self::process($this->content);
 		
-		$class = 'concept';
+		$class = 'Concept';
 		$equalMatches = [];
 		$mostMatches = 0;
 		
@@ -317,7 +317,9 @@ class ContentItem
 				$mostMatches = $matches;
 				$class = $name;
 			}
-			else if($mostMatches == $matches)
+			/* Classes can be equally matched, unless none have been matched so far,
+			 * in which case "concept" is used. */
+			else if($mostMatches == $matches && $mostMatches !== 0)
 			{
 				$equalMatches[] = $name;
 			}
@@ -537,9 +539,15 @@ class ContentItem
 	
 	public function getWikiDataID()
 	{
-		if(!($result = file_get_contents('https://en.wikipedia.org/w/api.php?action=query&redirects&prop=pageprops&ppprop=wikibase_item&titles='.urlencode($this->title).'&formatversion=2&format=json')))
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, 'https://en.wikipedia.org/w/api.php?action=query&redirects&prop=pageprops&ppprop=wikibase_item&titles='.urlencode($this->title).'&formatversion=2&format=json');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$result = curl_exec($ch);
+		curl_close($ch);  
+		
+		if(!$result)
 		{
-			throw new \Exception('file_get_contents failed');
+			throw new \Exception('curl failed');
 		}
 		
 		$result = json_decode($result, true);

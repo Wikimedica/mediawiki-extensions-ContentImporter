@@ -46,7 +46,13 @@ abstract class MediaWikiContentSource extends Source
 			return false;
 		}*/
 		
-		if(!$json = @file_get_contents($query = $this->apiUrl.'?action=query&format=json&prop=revisions&rvprop=content|ids&titles='.urlencode($title)))
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $this->apiUrl.'?action=query&format=json&prop=revisions&rvprop=content|ids&titles='.urlencode($title));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$json = curl_exec($ch);
+		curl_close($ch);      
+		
+		if(!$json)
 		{
 			return false;
 		}
@@ -77,9 +83,15 @@ abstract class MediaWikiContentSource extends Source
 			$url = '?action=query&apfilterredir=nonredirects&'.($this->_continue ? 'apcontinue='.$this->_continue['apcontinue']: '').'aplimit=5000&list=allpages&format=json';
 		}
 		
-		if(!($content = file_get_contents($this->apiUrl.$url)))
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $this->apiUrl.$url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$content = curl_exec($ch);
+		curl_close($ch);  
+		
+		if(!$content)
 		{
-			throw new \Exception('file_get_contents failed');
+			throw new \Exception('curl failed');
 		}
 		
 		$content = json_decode($content, true);

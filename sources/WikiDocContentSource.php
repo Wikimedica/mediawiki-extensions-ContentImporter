@@ -176,7 +176,7 @@ class WikiDocContentSource extends MediaWikiContentSource
 			return $item;
 		}
 		
-		// If a title contains a link, the page is made from subpages.
+		// If a title contains a link, the page is made from subpages that need to be put together.
 		if(!preg_match('/^==.*\[{2}.*$/m', $item->content))
 		{
 			return $item;
@@ -191,7 +191,12 @@ class WikiDocContentSource extends MediaWikiContentSource
 		$query = substr($query, 0, strlen($query) - 1); // Remove last pipe;
 		$query = str_replace(' ', '_', $query);
 		
-		$json = file_get_contents($query);
+		$ch = curl_init();
+		curl_setopt($ch, $query);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$json = curl_exec($ch);
+		curl_close($ch);  
+		
 		$pages = json_decode($json, true);
 		$pages = $pages['query']['pages'];
 		
@@ -304,6 +309,7 @@ class WikiDocContentSource extends MediaWikiContentSource
 	{
 		$text = "\n{{Article importé d'une source\n";
 		$text .= "| accès = ".date('Y/m/d', time())."\n";
+		$text .= "| date = "."\n";
 		$text .= "| source = WikiDoc\n";
 		$text .= "| version_outil_d'importation = ".\ExtensionRegistry::getInstance()->getAllThings()['ContentImporter']['version']."\n";
 		$text .= "| révisé = 0\n";
