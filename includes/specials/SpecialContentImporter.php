@@ -170,7 +170,7 @@ class SpecialContentImporter extends \FormSpecialPage
 		
 		if($t = $session->get('contentImporter-success-save'))
 		{
-			$sucess = true;
+			$success = true;
 			$form['success'] = [
 					'type' => 'info',
 					'default' => wfMessage('contentImporter-success-save', [$t])->parse(),
@@ -241,6 +241,12 @@ class SpecialContentImporter extends \FormSpecialPage
 			{
 				$item->translatedTitle = $item->translate($item->title);
 				$item->getWikiDataID();
+				
+				// Google will sometimes add determinants to the title.
+				if(strpos($item->translatedTitle, 'Le ') === 0 || strpos($item->translatedTitle, 'La ') === 0)
+				{
+					$item->translatedTitle = ucfirst(substr($item->translatedTitle, 3));
+				}
 			}
 		}
 		

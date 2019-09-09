@@ -65,7 +65,9 @@ class WikiDocContentSource extends MediaWikiContentSource
 						'} <' => '}<',
 						'</ ' => '</',
 						'sémantiques / ' => 'sémantiques/',
-						'<références /' => '<references /'
+						'<références /' => '<references /',
+						"'' '" => "'''",
+						"' ''" => "'''"
 					],
 					"classes" => [
 							'Maladie' => [
@@ -74,15 +76,15 @@ class WikiDocContentSource extends MediaWikiContentSource
 											"Overview" => [0, 'flatten' => true],
 											"Risk Factors" => 'Facteurs de risque',
 											"Causes" => 'Étiologies',
-											"Epidemiology *" => 'Épidémiologie',
+											"Epidemiology*" => 'Épidémiologie',
 											"Classification" => ['Classification', 'position' => 3],
 											'Pathophysiology' => 'Physiopathologie',
-											'Differential Diagnosis of *' => 'Diagnostic différentiel',
+											'Differential Diagnosis of*' => 'Diagnostic différentiel',
 											'Case Studies' => 'X',
-											'Causes of *' => 'X',
+											'Causes of*' => 'X',
 											"Treatment" => 'Traitement',
 											"Natural History, Complications and Prognosis" => "Évolution",
-											"Causes in *" => 'X',
+											"Causes in*" => 'X',
 											"Diagnosis" => 'Diagnostic'
 											
 									]
@@ -93,10 +95,11 @@ class WikiDocContentSource extends MediaWikiContentSource
 											'Overview' => [0, 'flatten' => true],
 											"Classification" => ['Classification', 'position' => 1],
 											'Eponym' => 'X', 
-											'Differential Diagnosis of *' => 'X',
+											'Differential Diagnosis of*' => 'X',
 											'Pathophysiology' => 'Physiopathologie',
 											'Causes' => 'X', 
 											'Historical Perspective' => 'X',
+											'Clinical Relevance' => 'Signification clinique'
 									]
 							],
 							'Symptôme' => [
@@ -105,7 +108,7 @@ class WikiDocContentSource extends MediaWikiContentSource
 											'Overview' => [0, 'flatten' => true],
 											"Classification" => ['Classification', 'position' => 1],
 											'Eponym' => 'X',
-											'Differential Diagnosis of *' => 'X',
+											'Differential Diagnosis of*' => 'X',
 											'Pathophysiology' => 'Physiopathologie',
 											'Causes' => 'X',
 											'Historical Perspective' => 'X',
