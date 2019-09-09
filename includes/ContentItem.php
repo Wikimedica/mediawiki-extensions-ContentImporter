@@ -184,7 +184,7 @@ class ContentItem
 		//Simplify the UNIQ QINU internat markers, otherwise Google seems to screw with it.
 		// Example: '"`UNIQ--!---00000001-QINU`"'
 		$text = str_replace(chr(0x7F)."'\"`UNIQ--ref-", 'UNIQref', $text);
-		$text = str_replace(chr(0x7F)."'\"`UNIQ--!---", 'UNIQ!', $text);
+		$text = str_replace(chr(0x7F)."'\"`UNIQ--!---", 'UNIQcom', $text);
 		$text = str_replace("-QINU`\"'".chr(0x7F), 'QINU', $text);
 		
 		// Instantiates a client.
@@ -200,12 +200,15 @@ class ContentItem
 		
 		// Restore the UNIQ QINU markers.
 		$text = str_replace('UNIQref', chr(0x7F)."'\"`UNIQ--ref-", $text);
-		$text = str_replace('UNIQ!', chr(0x7F)."'\"`UNIQ--!---", $text);
+		$text = str_replace('UNIQcom', chr(0x7F)."'\"`UNIQ--!---", $text);
 		$text = str_replace('QINU', "-QINU`\"'".chr(0x7F), $text);
 		
 		// Google screws with some format, so restore it.
-		//$text = str_replace(['> {', '} <', '</ ', 'sémantiques / ', "'\"` UNIQ", "` \"'", ' -! --- ', ' - ref-', '<références /'], ['>{', '}<', '</', 'sémantiques/', chr(0x7F)."'\"`UNIQ", "`\"'".chr(0x7F), '--!---','--ref-', '<references /'], $text);
-		$text = str_replace(['> {', '} <', '</ ', 'sémantiques / ', '<références /'], ['>{', '}<', '</', 'sémantiques/', '<references /'], $text);
+		if(isset(self::$source->rules['correctAfterTranslate']))
+		{
+			$corrections = self::$source->rules['correctAfterTranslate'];
+			$text = str_replace(array_keys($corrections), array_values($corrections), $text);
+		}
 		
 		return $text;
 	}

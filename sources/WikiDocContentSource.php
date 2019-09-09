@@ -57,6 +57,16 @@ class WikiDocContentSource extends MediaWikiContentSource
 		{
 			$this->rules = [
 					"erase" => [],
+					"correctAfterTranslate" => [
+						"{{{" => "{{",
+						"}}}" => "}}",
+						"Concept d'information" => 'Information concept',
+						'> {' => '>{',
+						'} <' => '}<',
+						'</ ' => '</',
+						'sémantiques / ' => 'sémantiques/',
+						'<références /' => '<references /'
+					],
 					"classes" => [
 							'Maladie' => [
 									"name" => "Maladie",
