@@ -322,7 +322,6 @@ class WikiDocContentSource extends MediaWikiContentSource
 	{
 		$text = "\n{{Article importé d'une source\n";
 		$text .= "| accès = ".date('Y/m/d', time())."\n";
-		$text .= "| date = "."\n";
 		$text .= "| source = WikiDoc\n";
 		$text .= "| version_outil_d'importation = ".\ExtensionRegistry::getInstance()->getAllThings()['ContentImporter']['version']."\n";
 		$text .= "| révisé = 0\n";

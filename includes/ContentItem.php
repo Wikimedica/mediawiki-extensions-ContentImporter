@@ -515,8 +515,6 @@ class ContentItem
 			$text = str_replace("terme_anglais =", "terme_anglais = ".$this->title, $text);
 		}
 		
-		$text .= self::$source->getImportedTemplate($this);
-		
 		$text = str_replace('| image = Besoin d\'une image.svg', '| image =', $text); // Remove the default image.
 		
 		// This translated item needs to be checked.
@@ -567,6 +565,8 @@ class ContentItem
 		$this->extractCitations();
 		$this->processedContent = $this->translate($this->processedContent);
 		$this->restoreCitations();
+		// Do this after translation otherwise the content gets modified.
+		$this->processedContent .= self::$source->getImportedTemplate($this);
 		
 		global $wgUser;
 		
