@@ -359,6 +359,10 @@ class ContentItem
 		return $rules;
 	}
 	
+	/** @var boolean if the prototype defines a semantic sections template. It might get overwritten so this variable will tell
+	 * if a check is needed during post processing. */
+	private $_hasSemanticSections = false;
+	
 	public function processText()
 	{
 		$this->processedContent = $this->content;
@@ -387,6 +391,7 @@ class ContentItem
 			$article = \Article::newFromTitle(\Title::newFromText('Wikimedica:Ontologie/'.$this->class.'/Prototype', NS_PROJECT), \RequestContext::getMain());
 			$prototype = $article->getRevision() ? $article->getRevision()->getContent()->getNativeData(): '';
 			$prototype = str_replace('<includeonly></includeonly>', '', $prototype);
+			$this->_hasSemanticSections = strpos($prototype, '{{Sections sémantiques/') !== false;
 			$prototype = self::process($prototype);
 			unset($prototype['Notes']); // This is not used by other wikis.
 		
@@ -423,7 +428,6 @@ class ContentItem
 				}
 				else // Add the section under a different title.
 				{
-
 					if($rule['position'] !== false) // Insert item at position.
 					{
 						$p1 = $p2 = $prototype;
@@ -508,7 +512,15 @@ class ContentItem
 		$text = str_replace("\n\n\n", "\n\n", $text); // Clean up line jumps.
 		if($this->wikidataID)
 		{
-			$text = str_replace("| version_de_classe", "| wikidata_id = ".$this->wikidataID."\n| version_de_classe", $text); // Add the Wikidata ID.
+			if(strpos($text, 'wikidata_id') !== false)
+			{
+				// The template already contains a wikidata_id parameter.
+				$text = str_replace("| wikidata_id =", "| wikidata_id = $this->wikidataID", $text); // Add the Wikidata ID.
+			} 
+			else // Add wikidata_id to the template. 
+			{
+				$text = str_replace("| version_de_classe", "| wikidata_id = ".$this->wikidataID."\n| version_de_classe", $text); // Add the Wikidata ID.
+			}
 		}
 		else
 		{
@@ -536,6 +548,21 @@ class ContentItem
 			foreach(self::$source->rules['replace'] as $en => $fr)
 			{
 				$text = str_replace($en, $fr, $text);
+			}
+		}
+		
+		// If the semantic sections was erased.
+		if($this->_hasSemanticSections && strpos($text, '{{Sections sémantiques/') === false)
+		{
+			foreach(['Notes', 'Références'] as $section)
+			{
+				foreach(['==', '== '] as $eq)
+				{
+					$count = 0;
+					$text = str_replace($eq.$section, "{{Sections sémantiques/$this->class}}\n\n== $section" ,$text, $count);
+					
+					if($count) { break 2; } // Something was replaced
+				}
 			}
 		}
 		

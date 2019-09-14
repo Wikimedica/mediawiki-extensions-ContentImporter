@@ -67,7 +67,8 @@ class WikiDocContentSource extends MediaWikiContentSource
 						'sémantiques / ' => 'sémantiques/',
 						'<références /' => '<references /',
 						"'' '" => "'''",
-						"' ''" => "'''"
+						"' ''" => "'''",
+							"classe = Symptômes" => "class = Symptôme"
 					],
 					"classes" => [
 							'Maladie' => [
