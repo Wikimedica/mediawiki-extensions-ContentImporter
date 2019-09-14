@@ -382,6 +382,12 @@ class ContentItem
 		
 		$this->restoreCitations();
 		
+		// Replace patterns.
+		foreach(isset(self::$source->rules['replace']) ? self::$source->rules['replace']: [] as $search => $replace)
+		{
+			$this->processedContent = str_replace($search, $replace, $this->processedContent);
+		}
+		
 		$sections = self::process($this->processedContent);
 		//$lastSection = array_pop($sections); // Whatever is last (usually References of External Links) gets removed.
 		unset($sections['References']);
@@ -542,14 +548,6 @@ class ContentItem
 			}
 		}
 		$text = str_replace("| spécialités =", "| spécialités = ".implode(', ', $specialties), $text);
-		
-		if(isset(self::$source->rules['replace'])) // If there are words to replace.
-		{
-			foreach(self::$source->rules['replace'] as $en => $fr)
-			{
-				$text = str_replace($en, $fr, $text);
-			}
-		}
 		
 		// If the semantic sections was erased.
 		if($this->_hasSemanticSections && strpos($text, '{{Sections sémantiques/') === false)

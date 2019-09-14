@@ -56,7 +56,12 @@ class WikiDocContentSource extends MediaWikiContentSource
 		if(!$this->rules)
 		{
 			$this->rules = [
-					"erase" => [],
+					"replace" => [
+						'style="background:#4479BA; color: #FFFFFF;" + ' => '',
+						'align="center"' => '',
+						//' style="padding: 5px 5px; background: #F5F5F5;" ' => '',
+						'SSRI' => 'IRSS'
+					],
 					"correctAfterTranslate" => [
 						"{{{" => "{{",
 						"}}}" => "}}",
@@ -68,7 +73,7 @@ class WikiDocContentSource extends MediaWikiContentSource
 						'<références /' => '<references /',
 						"'' '" => "'''",
 						"' ''" => "'''",
-							"classe = Symptômes" => "class = Symptôme"
+						"classe = Symptômes" => "class = Symptôme"
 					],
 					"classes" => [
 							'Maladie' => [
@@ -81,12 +86,15 @@ class WikiDocContentSource extends MediaWikiContentSource
 											"Classification" => ['Classification', 'position' => 3],
 											'Pathophysiology' => 'Physiopathologie',
 											'Differential Diagnosis of*' => 'Diagnostic différentiel',
+											'Differentiating *' => 'Diagnostic différentiel',
 											'Case Studies' => 'X',
 											'Causes of*' => 'X',
 											"Treatment" => 'Traitement',
 											"Natural History, Complications and Prognosis" => "Évolution",
 											"Causes in*" => 'X',
-											"Diagnosis" => 'Diagnostic'
+											"Diagnosis" => 'Présentation clinique',
+											'Historical Perspective' => 'X',
+											'Screening' => 'Prévention'
 											
 									]
 							],
@@ -118,16 +126,16 @@ class WikiDocContentSource extends MediaWikiContentSource
 							'Concept' => [ ],
 							"All" => ['equivalencies' => ['See Also' => 'X', 'Overview' => [0, 'flatten' => true], 'External Links' => 'X', 'Related Chapters' => 'X']]
 					],
-					'replace' => ['SSRI' => 'IRSS'],
 					'specialties' => [
 							'Cardiology' => 'Cardiologie',
 							'Gastroenterology' => 'Gastroentérologie',
 							'Laryngology' => 'Oto-rhino-laryngologie',
 							'Pulmonology' => 'Pneumologie',
-							'Psychiatry' => 'Psychiatrie'
-							/*'Pathology' => 'Anatomo-pathologie',
-							'Anesthésiologie',
-							'Cardiologie',
+							'Psychiatry' => 'Psychiatrie',
+							'Neurology' => 'Neurologie',
+							'Pathology' => 'Pathologie',
+							'Anesthesiology' => 'Anesthésiologie',
+							'Urology' => 'Urologie'/*
 							'Chirurgie cardiaque',
 							'Chirurgie générale',
 							'Chirurgie orthopédique',
@@ -151,19 +159,14 @@ class WikiDocContentSource extends MediaWikiContentSource
 							'Microbiologie médicale et infectiologie',
 							'Néphrologie',
 							'Neurochirurgie',
-							'Neurologie',
 							'Obstétrique et gynécologie',
 							'Oncologie médicale',
 							'Ophtalmologie',
 							'Oto-rhino-laryngologie et chirurgie cervico-faciale',
 							'Pédiatrie',
-							'Pneumologie',
-							'Psychiatrie',
 							'Radio-oncologie',
 							'Radiologie diagnostique',
-							'Rhumatologie',
-							'Santé publique et médecine préventive',
-							'Urologie',*/
+							'Rhumatologie'*/
 					]
 			];
 		}
@@ -201,17 +204,18 @@ class WikiDocContentSource extends MediaWikiContentSource
 		
 		$query = $this->apiUrl.'?action=query&format=json&prop=revisions&rvprop=content|ids&titles=';
 		
-		foreach($subs as $sub) {$query .= $item->title.' '.$sub.'|'; }
+		foreach($subs as $sub) {$query .= urlencode($item->title).' '.$sub.'|'; }
 		$query = substr($query, 0, strlen($query) - 1); // Remove last pipe;
 		$query = str_replace(' ', '_', $query);
 		
 		$ch = curl_init();
-		curl_setopt($ch, $query);
+		curl_setopt($ch, CURLOPT_URL, $query);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		$json = curl_exec($ch);
 		curl_close($ch);  
 		
-		$pages = json_decode($json, true);
+		if(!$pages = json_decode($json, true)){ return false; }
+		
 		$pages = $pages['query']['pages'];
 		
 		$sections = ContentItem::process($item->content);
@@ -282,8 +286,38 @@ class WikiDocContentSource extends MediaWikiContentSource
 			}
 		}
 		
+		// Clean up structure for display as a single page.
+		function clean(&$item)
+		{ 
+			foreach($item as $k => &$v)
+			{		
+				if(!is_array($v)){ continue; }
+				
+				clean($v);
+				
+				// Delete all references sections.
+				if(isset($v['Reference'])) { unset($v['Reference']); }
+				if(isset($v['References'])) { unset($v['References']); }
+				
+				// If there are only two sections in a page, one is often a repeat of the other in the WikiDoc structure.
+				if(count($v) == 2) 
+				{
+					unset($v[0]); // Delete the introduction.
+					$v = array_values($v); // The other section becomes the introduction.
+				}
+			}
+		}
+		
+		clean($sections);
 		$item->content = ContentItem::sectionsToText($sections);
-			
+		
+		// Remove styles from tables.
+		//$item->content = preg_replace('/style=(["])(?:(?=(\\?))\2.)*?\1/', '', $item->content);
+		$item->content = preg_replace('/style="[^"]+/im', '', $item->content);
+		
+		// Make sure all tables are styled as wikitables.
+		$item->content = preg_replace('/\{\|[ |"]*\n/im', '{| class="wikitable"', $item->content);
+		
 		return $item;
 	}
 	
