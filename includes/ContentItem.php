@@ -299,15 +299,15 @@ class ContentItem
 		foreach(self::$source->rules['classes'] as $name => $rule)
 		{	
 			if($name == 'All') { continue; }
+			if(!isset($rule['equivalencies'])) { continue; } // No equivalencies for this rule.
+			
+			$rules = $this->buildRules($name, false);
 			
 			$matches = 0;
 			
-			if(!isset($rule['equivalencies'])) { continue; } // No equivalencies for this rule.
-			
-			foreach($rule['equivalencies'] as $match => $equivalent)
-			{
-				
-				if($equivalent === 0) { continue; } // Skip the introduction.
+			foreach($rules as $match => $equivalent)
+			{	
+				if($equivalent[0] === 0 || $equivalent[0] === '0' ) { continue; } // Skip the introduction.
 				
 				foreach($sections as $section => $text)
 				{
@@ -343,10 +343,15 @@ class ContentItem
 		if(is_array($s1) && is_array($s2)) { $s1[0] .= $s2[0]; unset($s2[0]); return array_merge($s1, $s2); }
 	}
 	
-	public function buildRules()
+	public function buildRules($class = null, $includeAll = true)
 	{
-		$rules = isset(self::$source->rules['classes'][$this->class]['equivalencies']) ? self::$source->rules['classes'][$this->class]['equivalencies']: [];
-		$rules = array_merge(self::$source->rules['classes']['All']['equivalencies'], $rules); // Merge the rules that apply to all classes.
+		$class = !$class ? $this->class: $class;
+		$rules = isset(self::$source->rules['classes'][$class]['equivalencies']) ? self::$source->rules['classes'][$class]['equivalencies']: [];
+		
+		if($includeAll)
+		{
+			$rules = array_merge(self::$source->rules['classes']['All']['equivalencies'], $rules); // Merge the rules that apply to all classes.
+		}
 		
 		foreach($rules as $pattern => &$rule)
 		{

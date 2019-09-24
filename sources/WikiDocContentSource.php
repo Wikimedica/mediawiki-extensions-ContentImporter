@@ -44,7 +44,9 @@ class WikiDocContentSource extends MediaWikiContentSource
 					'Secondary Prevention' => 'secondary prevention', 
 					'Cost-effectiveness of Therapy' => 'cost-effectiveness of therapy', 
 					'Future or Investigational Therapies' => 'future or investigational therapies'
-			]
+			],
+			'(patient information)',
+			'prevention'
 	];
 	
 	public function __construct()
@@ -94,7 +96,8 @@ class WikiDocContentSource extends MediaWikiContentSource
 											"Causes in*" => 'X',
 											"Diagnosis" => 'Présentation clinique',
 											'Historical Perspective' => 'X',
-											'Screening' => 'Prévention'
+											'Screening' => 'Prévention',
+											'Prevention' => 'Prévention'
 											
 									]
 							],
