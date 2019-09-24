@@ -233,15 +233,20 @@ class ContentItem
 				// This citation has no name, it cannot be a duplicate.
 				if(!isset($c2[2]['name'])) { continue; }
 				
-				if($c1[2]['name'] == $c2[2]['name'])
+				// If the citation have the same name and $c2 is not a reference.
+				if($c1[2]['name'] == $c2[2]['name'] && $c2[1])
 				{
 					// These two citations refer to the same source.
 					$ref = true;
+					break;
 				}
 			}
 			
 			// First time we encounter the citation.
-			if(!$ref){ $this->citations[$id1] = $c1; }
+			if(!$ref)
+			{ 
+				$this->citations[$id1] = $c1;
+			}
 			else 
 			{ 
 				// This citation is a reference.
@@ -251,6 +256,8 @@ class ContentItem
 			}
 			$ref = false;
 		}
+		
+		return;
 	}
 	
 	public function restoreCitations()
@@ -384,7 +391,7 @@ class ContentItem
 		. '((?:[^' . $delimiter_left . $delimiter_right . ']++|(?R))*)'
 				. $delimiter_right . $delimiter_wrap;
 		$this->processedContent = preg_replace($pattern, '', $this->processedContent);
-		
+				
 		$this->restoreCitations();
 		
 		// Replace patterns.
