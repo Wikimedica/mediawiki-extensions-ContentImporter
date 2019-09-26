@@ -190,14 +190,43 @@ class ContentItem
 		// Instantiates a client.
 		$translate = new TranslateClient(['projectId' => 'wikimedica-conte-1560481017558']);
 		
-		$result = $translate->translate($text, [
+		// The API cannot process more that 30000 characters so split the requests
+		$start = 0;
+		$end = 19000;
+		$parts = ceil(strlen($text) / $end );
+		$blocks = [];
+		
+		// Split the text into blocks (ignoring UTF-8 encoding seems fine).
+		for($i = 0; $i < $parts; $i++)
+		{
+			// Make sure we split the text along phrases.
+			while($end < strlen($text) && // While we have not reached the end of the string.
+				$text[$end] != '.' && // While we have not reached a period.
+				$end - $start < 20000 // While we have not reached the hard coded limit for blocks.
+			)
+			{
+				$end++;
+			}
+			
+			$blocks[] = substr($text, $start, $end + 1);
+			$start = $end + 1;
+			$end += 19000;
+			if($start >= strlen($text) - 1) { break; }
+		}
+		
+		$text = '';
+		
+		foreach($blocks as $b) // Translate each block.
+		{
+			$result = $translate->translate($b, [
 				'source' => 'en',
 				'target' => 'fr',
 				'format' => 'text'
-		]);
-		
-		$text = $result['text'];
-		
+			]);
+			
+			$text .= $result['text'];
+		}
+
 		// Restore the UNIQ QINU markers.
 		$text = str_replace('UNIQref', chr(0x7F)."'\"`UNIQ--ref-", $text);
 		$text = str_replace('UNIQcom', chr(0x7F)."'\"`UNIQ--!---", $text);
