@@ -242,7 +242,12 @@ class ContentItem
 		return $text;
 	}
 	
-	public function extractCitations()
+	/**
+	 * Extract all citations from the text and replace them with patterns.
+	 * @var boolean $noRefs allow citation references, if set to true, references will be resolved (useful if a section which
+	 * contained the original citation gets removed during processins).
+	 * */
+	public function extractCitations($noRefs = false)
 	{
 		$citations;
 		// HTML Comments are always extracted.
@@ -275,6 +280,10 @@ class ContentItem
 			if(!$ref)
 			{ 
 				$this->citations[$id1] = $c1;
+			}
+			else if($noRefs) // Resolve the reference.
+			{
+				$this->citations[$id1] = $c2;
 			}
 			else 
 			{ 
@@ -407,7 +416,8 @@ class ContentItem
 	public function processText()
 	{
 		$this->processedContent = $this->content;
-		$this->extractCitations(); // Remove citations so they do not get erased.
+		$this->extractCitations(true); /* Remove citations so they do not get erased (and resolve references in case the section
+		defining the citation gets deleted onwards. */
 		
 		// Remove all templates.
 		$delimiter_wrap  = '~';
