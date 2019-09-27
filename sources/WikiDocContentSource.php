@@ -46,7 +46,8 @@ class WikiDocContentSource extends MediaWikiContentSource
 					'Future or Investigational Therapies' => 'future or investigational therapies'
 			],
 			'(patient information)',
-			'prevention'
+			'prevention',
+			'molecular genetic studies'
 	];
 	
 	public function __construct()
@@ -75,7 +76,9 @@ class WikiDocContentSource extends MediaWikiContentSource
 						'<références /' => '<references /',
 						"'' '" => "'''",
 						"' ''" => "'''",
-						"classe = Symptômes" => "class = Symptôme"
+						"classe = Symptômes" => "class = Symptôme",
+						'[[[' => '[[',
+						']]]' => ']]'
 					],
 					"classes" => [
 							'Maladie' => [
@@ -97,7 +100,8 @@ class WikiDocContentSource extends MediaWikiContentSource
 											"Diagnosis" => 'Présentation clinique',
 											'Historical Perspective' => 'X',
 											'Screening' => 'Prévention',
-											'Prevention' => 'Prévention'
+											'Prevention' => 'Prévention',
+											'Molecular genetic studies' => 'Physiopathologie'
 											
 									]
 							],
@@ -138,38 +142,38 @@ class WikiDocContentSource extends MediaWikiContentSource
 							'Neurology' => 'Neurologie',
 							'Pathology' => 'Pathologie',
 							'Anesthesiology' => 'Anesthésiologie',
-							'Urology' => 'Urologie'/*
-							'Chirurgie cardiaque',
-							'Chirurgie générale',
-							'Chirurgie orthopédique',
-							'Chirurgie plastique',
-							'Chirurgie thoracique',
-							'Chirurgie vasculaire',
-							'Dermatologie',
-							'Endocrinologie et métabolisme',
-							'Gastroentérologie',
-							'Génétique médicale',
-							'Gériatrie',
-							'Hématologie',
-							'Immunologie clinique et allergie',
-							'Médecine d’urgence (MU-5)',
-							'Médecine familiale',
-							'Médecine de soins intensifs',
-							'Médecine du travail',
-							'Médecine interne',
-							'Médecine nucléaire',
-							'Médecine physique et réadaptation',
-							'Microbiologie médicale et infectiologie',
-							'Néphrologie',
-							'Neurochirurgie',
-							'Obstétrique et gynécologie',
-							'Oncologie médicale',
-							'Ophtalmologie',
-							'Oto-rhino-laryngologie et chirurgie cervico-faciale',
-							'Pédiatrie',
-							'Radio-oncologie',
-							'Radiologie diagnostique',
-							'Rhumatologie'*/
+							'Urology' => 'Urologie',
+							'Cardiac surgery' => 'Chirurgie cardiaque',
+							'General surgery' => 'Chirurgie générale',
+							'Orthopedic surgery' => 'Chirurgie orthopédique',
+							'Plastic surgery' => 'Chirurgie plastique',
+							'Thoracic surgery' => 'Chirurgie thoracique',
+							'Vascular surgery' => 'Chirurgie vasculaire',
+							'Dermatology surgery' => 'Dermatologie',
+							'Endocrinology' => 'Endocrinologie',
+							//'Génétique médicale',
+							'Geriatric medicine' => 'Gériatrie',
+							'Hematology' => 'Hématologie',
+							'Immunology' => 'Immunologie clinique et allergie',
+							'Emergency medicine' => 'Médecine d’urgence',
+							'Family medicine' => 'Médecine familiale',
+							'Intendive care' => 'Soins intensifs',
+							'General surgery' => 'Médecine du travail',
+							'Internal medicine' => 'Médecine interne',
+							//'Médecine nucléaire',
+							//'Médecine physique et réadaptation',
+							'Infectiology' => 'Infectiologie',
+							'Nephrology' => 'Néphrologie',
+							'Neurosurgery' => 'Neurochirurgie',
+							'Obstetrics' => 'Obstétrique',
+							'Gynecology' => 'Gynécologie',
+							'Onvology' => 'Oncologie',
+							'Ophtalmology' => 'Ophtalmologie',
+							'Otorhinolaryngology' => 'Oto-rhino-laryngologie',
+							'Periatrics' => 'Pédiatrie',
+							'Radio-oncology' => 'Radio-oncologie',
+							'Radiology' => 'Radiologie diagnostique',
+							'Rheumatology' => 'Rhumatologie'
 					]
 			];
 		}
@@ -230,12 +234,15 @@ class WikiDocContentSource extends MediaWikiContentSource
 			
 			if(isset($page['missing'])) { continue; } // The page does not exist.
 			
-			// DDx pages are named differently.
-			if($title == 'differential diagnosis') { $title = strtolower('Differentiating '.$item->title.' from other Diseases'); }
+			// DDx pages are named differently and their name varies a lot.
+			if($title == 'differential diagnosis') 
+			{ 
+				$title = strtolower('Differentiating *'); 
+			}
 			
 			foreach($sections as $section => $content)
 			{	
-				if(str_replace('=', '', strtolower($section)) == $title)
+				if(ContentItem::titleMatch($title, str_replace('=', '', strtolower($section))))
 				{	
 					$content = $page['revisions'][0]['*'];
 					$content = ContentItem::process($content);
@@ -306,7 +313,7 @@ class WikiDocContentSource extends MediaWikiContentSource
 				if(count($v) == 2) 
 				{
 					unset($v[0]); // Delete the introduction.
-					$v = array_values($v); // The other section becomes the introduction.
+					$v = array_values($v)[0]; // The other section becomes the introduction.
 				}
 			}
 		}
