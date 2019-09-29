@@ -59,13 +59,15 @@ class WikiDocContentSource extends MediaWikiContentSource
 		if(!$this->rules)
 		{
 			$this->rules = [
-					"replace" => [
+					"replaceBeforeTranslation" => [
 						'style="background:#4479BA; color: #FFFFFF;" + ' => '',
 						'align="center"' => '',
 						//' style="padding: 5px 5px; background: #F5F5F5;" ' => '',
-						'SSRI' => 'IRSS'
+						'SSRI' => 'IRSS',
+						'| -' => '| Ø' // Google screws with |-, which means jumb row and | -, which is a dash inside a cell.
+						
 					],
-					"correctAfterTranslate" => [
+					"replaceAfterTranslation" => [
 						"{{{" => "{{",
 						"}}}" => "}}",
 						"Concept d'information" => 'Information concept',
@@ -78,7 +80,8 @@ class WikiDocContentSource extends MediaWikiContentSource
 						"' ''" => "'''",
 						"classe = Symptômes" => "class = Symptôme",
 						'[[[' => '[[',
-						']]]' => ']]'
+						']]]' => ']]',
+						'| -' => '|-'
 					],
 					"classes" => [
 							'Maladie' => [

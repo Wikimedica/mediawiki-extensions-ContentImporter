@@ -23,6 +23,7 @@ class ContentItem
 	
 	public $translatedTitle;
 	
+	/** "var string|null, the page's content, set to null if the page does not exist. */
 	public $content;
 	
 	public $processedContent;
@@ -233,9 +234,9 @@ class ContentItem
 		$text = str_replace('QINU', "-QINU`\"'".chr(0x7F), $text);
 		
 		// Google screws with some format, so restore it.
-		if(isset(self::$source->rules['correctAfterTranslate']))
+		if(isset(self::$source->rules['replaceAfterTranslation']))
 		{
-			$corrections = self::$source->rules['correctAfterTranslate'];
+			$corrections = self::$source->rules['replaceAfterTranslation'];
 			$text = str_replace(array_keys($corrections), array_values($corrections), $text);
 		}
 		
@@ -434,7 +435,7 @@ class ContentItem
 		$this->restoreCitations();
 		
 		// Replace patterns.
-		foreach(isset(self::$source->rules['replace']) ? self::$source->rules['replace']: [] as $search => $replace)
+		foreach(isset(self::$source->rules['replaceBeforeTranslation']) ? self::$source->rules['replaceBeforeTranslation']: [] as $search => $replace)
 		{
 			$this->processedContent = str_replace($search, $replace, $this->processedContent);
 		}

@@ -223,7 +223,7 @@ class SpecialContentImporter extends \FormSpecialPage
 					'section' => 'source'
 				];
 				
-				$item = new ContentItem($this->sourceTitle, '');
+				$item = new ContentItem($this->sourceTitle, null);
 			}
 			else if($item === 0)
 			{
@@ -235,7 +235,7 @@ class SpecialContentImporter extends \FormSpecialPage
 					'section' => 'source'
 				];
 				
-				$item = new ContentItem($this->sourceTitle, '');
+				$item = new ContentItem($this->sourceTitle, null);
 			}
 			else 
 			{
@@ -294,6 +294,7 @@ class SpecialContentImporter extends \FormSpecialPage
 			'readonly' => true,
 			'label' => 'Source',
 			'default' => $item->content,
+			'placeholder' => $item->content === '' ? 'Cette page est vide': '',
 			'rows' => 53
 		];
 		
@@ -349,7 +350,7 @@ class SpecialContentImporter extends \FormSpecialPage
 		];
 		
 		// If the item was found and the item is not being saved. Otherwise, modifications a user made before saving get erased.
-		if($item->content && $this->getRequest()->getVal('wpdestinationSave') === null)
+		if($item->content !== null && $this->getRequest()->getVal('wpdestinationSave') === null)
 		{
 			if($match = $this->getRequest()->getVal('wpdestinationClass'))
 			{
@@ -404,7 +405,7 @@ class SpecialContentImporter extends \FormSpecialPage
 			//'required' => true
 		];
 		
-		if($item->content) // If there is content to preview.
+		if($item->content !== null) // If there is content to preview.
 		{
 			$parserOptions = new \ParserOptions();
 			$parserOptions->setIsPreview(true);
