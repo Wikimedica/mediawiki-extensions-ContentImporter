@@ -345,20 +345,4 @@ class WikiDocContentSource extends MediaWikiContentSource
 		
 		return $filteredList;
 	}
-	
-	public function getImportedTemplate($item, $fields = [])
-	{
-		$sources = [];		
-		$first = true;
-		$id = '';
-		foreach($item->sources as $name => $rev)
-		{
-			$sources["nom$id"] = $name;
-			$sources["révision$id"] = $rev;
-			if($first) { $id = 0; $first = false; }
-			else { $id++; }
-		}
-		
-		return parent::getImportedTemplate($item, $sources) ;
-	}
 }
