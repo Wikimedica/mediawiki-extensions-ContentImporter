@@ -234,9 +234,9 @@ class ContentItem
 		$text = str_replace('QINU', "-QINU`\"'".chr(0x7F), $text);
 		
 		// Google screws with some format, so restore it.
-		if(isset(self::$source->rules['replaceAfterTranslation']))
+		if(isset(self::$source->getRules()['replaceAfterTranslation']))
 		{
-			$corrections = self::$source->rules['replaceAfterTranslation'];
+			$corrections = self::$source->getRules()['replaceAfterTranslation'];
 			$text = str_replace(array_keys($corrections), array_values($corrections), $text);
 		}
 		
@@ -342,7 +342,7 @@ class ContentItem
 		$equalMatches = [];
 		$mostMatches = 0;
 		
-		foreach(self::$source->rules['classes'] as $name => $rule)
+		foreach(self::$source->getRules()['classes'] as $name => $rule)
 		{	
 			if($name == 'All') { continue; }
 			if(!isset($rule['equivalencies'])) { continue; } // No equivalencies for this rule.
@@ -392,11 +392,11 @@ class ContentItem
 	public function buildRules($class = null, $includeAll = true)
 	{
 		$class = !$class ? $this->class: $class;
-		$rules = isset(self::$source->rules['classes'][$class]['equivalencies']) ? self::$source->rules['classes'][$class]['equivalencies']: [];
+		$rules = isset(self::$source->getRules()['classes'][$class]['equivalencies']) ? self::$source->getRules()['classes'][$class]['equivalencies']: [];
 		
 		if($includeAll)
 		{
-			$rules = array_merge(self::$source->rules['classes']['All']['equivalencies'], $rules); // Merge the rules that apply to all classes.
+			$rules = array_merge(self::$source->getRules()['classes']['All']['equivalencies'], $rules); // Merge the rules that apply to all classes.
 		}
 		
 		foreach($rules as $pattern => &$rule)
@@ -430,12 +430,24 @@ class ContentItem
 		$pattern = $delimiter_wrap . $delimiter_left
 		. '((?:[^' . $delimiter_left . $delimiter_right . ']++|(?R))*)'
 				. $delimiter_right . $delimiter_wrap;
-		$this->processedContent = preg_replace($pattern, '', $this->processedContent);
-				
+		$matches = [];
+		preg_match_all($pattern, $this->processedContent, $matches);
+		
+		foreach($matches[0] as $match)
+		{
+			if(strpos($match, '{{columns-list') !== false) // Leave that template in place.
+			{
+				continue;
+			}
+			
+			// Remove that template.
+			$this->processedContent = str_replace($match, '', $this->processedContent);
+		}
+		
 		$this->restoreCitations();
 		
 		// Replace patterns.
-		foreach(isset(self::$source->rules['replaceBeforeTranslation']) ? self::$source->rules['replaceBeforeTranslation']: [] as $search => $replace)
+		foreach(isset(self::$source->getRules()['replaceBeforeTranslation']) ? self::$source->getRules()['replaceBeforeTranslation']: [] as $search => $replace)
 		{
 			$this->processedContent = str_replace($search, $replace, $this->processedContent);
 		}
@@ -592,7 +604,7 @@ class ContentItem
 		
 		// Add specialties detected from the categories in the source.
 		$specialties = [];
-		foreach(self::$source->rules['specialties'] as $en => $fr)
+		foreach(self::$source->getRules()['specialties'] as $en => $fr)
 		{
 			if(strrpos($this->content, "[[Category:$en]]") !== false)
 			{

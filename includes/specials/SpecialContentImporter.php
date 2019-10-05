@@ -54,12 +54,14 @@ class SpecialContentImporter extends \FormSpecialPage
 	{
 		if($this->source)
 		{
-			switch($this->source->name)
+			switch($this->source->id)
 			{
 				case 'wikem':
 					return 'Importer à partir de WikEM';
 				case 'wikidoc':
 					return 'Importer à partir de WikiDoc';
+				case 'wikipedia_en':
+					return 'Importer à partir de Wikipedia (en)';
 			}
 		}
 		
@@ -75,6 +77,10 @@ class SpecialContentImporter extends \FormSpecialPage
 				break;*/
 			case 'wikidoc':
 				$this->source = new WikiDocContentSource();
+				break;
+			case 'wikipedia_en':
+				if(!$this->category) { $this->category = 'Rare diseases'; }
+				$this->source = new WikipediaENContentSource();
 				break;
 			default:
 				throw new \Exception('Invalid source');
@@ -124,7 +130,7 @@ class SpecialContentImporter extends \FormSpecialPage
 		{
 			$form['source'] = [
 					'type' => 'select',
-					'options' => ['WikiDoc' => 'wikidoc', 'WikEM' => 'wikem',], //'HPO' => 'hpo', 'Disease Ontology' => 'do'],
+					'options' => ['WikiDoc' => 'wikidoc', 'Wikipedia (en)' => 'wikipedia_en', 'WikEM' => 'wikem',], //'HPO' => 'hpo', 'Disease Ontology' => 'do'],
 					'autofocus' => true,
 					'label' => 'Sélectionnez une source'
 			];
@@ -298,6 +304,28 @@ class SpecialContentImporter extends \FormSpecialPage
 			'rows' => 53
 		];
 		
+		// If the page on Wikipedia has more content.
+		if(!$success && $item->translatedTitle && $this->source->id != 'wikipedia_en')
+		{
+			$wikiSource = new WikipediaENContentSource();
+			$wikiItem = $wikiSource->getContentItem($item->title);
+			
+			// If there seems to be more content on the Wikipedia page.
+			if(strlen($wikiItem->content) > strlen($item->content))
+			{
+				$form['moreContentOnWikipedia'] = [
+					'section' => 'destination',
+					'type' => 'info',
+					'raw' => true,
+					'default' => wfMessage('contentImporter-page-more-content-on-Wikipedia', [
+						'https://en.wikipedia.org/wiki/'.$item->title,
+						$this->getPageTitle()->getLinkURL(['action' => 'import', 'source' => 'wikipedia_en', 'sourceTitle' => $item->title])
+					])->plain(),
+					'cssclass' => 'warning'
+				];
+			}
+		}
+		
 		// If the page already exists.
 		if(!$success && $item->translatedTitle && \Title::newFromText($item->translatedTitle)->exists())
 		{
@@ -337,7 +365,7 @@ class SpecialContentImporter extends \FormSpecialPage
 		
 		// Build the list of available classes using the source's import rules.
 		$destinationClassOptions = [];
-		foreach(array_keys($this->source->rules['classes']) as $class) { $destinationClassOptions[$class] = $class; }
+		foreach(array_keys($this->source->getRules()['classes']) as $class) { $destinationClassOptions[$class] = $class; }
 		unset($destinationClassOptions['All']);
 		
 		$form['destinationClass'] = [
@@ -393,7 +421,8 @@ class SpecialContentImporter extends \FormSpecialPage
 				'Ajouter des liens' => 'links',
 				'Ajouter des références' => 'refs',
 				'Ajouter des balises sémantiques' => 'semantics'
-			]
+			],
+			'default' => ['struct', 'semantics']
 		];
 		
 		$form['destinationContent'] = [
@@ -567,7 +596,7 @@ class SpecialContentImporter extends \FormSpecialPage
 	{
 		$args = ['action' => $this->action];
 		
-		if($this->source) { $args['source'] = $this->source->name; }
+		if($this->source) { $args['source'] = $this->source->id; }
 		
 		if($this->sourceTitle) { $args['sourceTitle'] = $this->sourceTitle; }
 		

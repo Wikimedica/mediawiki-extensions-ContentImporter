@@ -19,25 +19,59 @@ abstract class Source
 	
 	const MODIFICATION_TAG = 'ContentImporter-tag-modification';
 	
+	public $id;
+	
 	public $name;
 	
 	public $blacklist;
 	
 	public $imported;
 	
-	public $rules;
+	protected $rules;
 	
 	public $skipped;
 	
 	public $postponed;
 	
-	public function __construct($name)
+	protected $globalRules = [
+		"replaceBeforeTranslation" => [
+			'style="background:#4479BA; color: #FFFFFF;" + ' => '',
+			'align="center"' => '',
+			//' style="padding: 5px 5px; background: #F5F5F5;" ' => '',
+			'SSRI' => 'IRSS',
+			'| -' => '| Ø' // Google screws with |-, which means jumb row and | -, which is a dash inside a cell.
+		],
+		"replaceAfterTranslation" => [
+			"{{{" => "{{",
+			"}}}" => "}}",
+			"Concept d'information" => 'Information concept',
+			'> {' => '>{',
+			'} <' => '}<',
+			'</ ' => '</',
+			'sémantiques / ' => 'sémantiques/',
+			'<références /' => '<references /',
+			"'' '" => "'''",
+			"' ''" => "'''",
+			"classe = Symptômes" => "class = Symptôme",
+			'[[[' => '[[',
+			'[ [' => '[[',
+			']]]' => ']]',
+			'] ]' => ']]',
+			'| -' => '|-',
+			'</ noinclude>' => '</noinclude>'
+		],
+		'classes' => ['Concept' => [], 'All' => ['equivalencies' => []]],
+		'specialties' => []
+	];
+	
+	public function __construct($id, $name)
 	{
+		$this->id = $id;
 		$this->name = $name;
 		
 		foreach(['blacklist', 'imported', 'rules', 'skipped', 'postponed'] as $page)
 		{
-			$article = \Article::newFromTitle(\Title::newFromText(self::PREFIX.'-'.$name.'-'.$page.'.json', NS_MEDIAWIKI), \RequestContext::getMain());
+			$article = \Article::newFromTitle(\Title::newFromText(self::PREFIX.'-'.$id.'-'.$page.'.json', NS_MEDIAWIKI), \RequestContext::getMain());
 
 			$this->$page = $article->getRevision() ? $article->getRevision()->getContent()->getNativeData(): [];
 			
@@ -46,6 +80,22 @@ abstract class Source
 				$this->$page = json_decode($this->$page, true);
 			}
 		}
+		
+		// Retrieve the global rules.
+		$article = \Article::newFromTitle(\Title::newFromText(self::PREFIX.'-global-rules.json', NS_MEDIAWIKI), \RequestContext::getMain());
+		
+		$page = $article->getRevision() ? $article->getRevision()->getContent()->getNativeData(): [];
+		
+		if($page)
+		{
+			$this->globalRules = array_merge($this->globalRules, json_decode($page, true));
+		}
+	}
+	
+	
+	public function getRules()
+	{
+		return array_merge_recursive($this->globalRules, $this->rules);
 	}
 	
 	public abstract function getContentItem();
@@ -118,13 +168,24 @@ abstract class Source
 		return $this->saveArrayToPage('postponed', $this->postponed, 'Ajout item reporté');
 	}
 	
-	public abstract function getImportedTemplate($item);
+	public function getImportedTemplate($item, $fields = []) 
+	{
+		$text = "\n{{Article importé d'une source\n";
+		$text .= "| accès = ".date('Y/m/d', time())."\n";
+		$text .= "| source = $this->name\n";
+		$text .= "| version_outil_d'importation = ".\ExtensionRegistry::getInstance()->getAllThings()['ContentImporter']['version']."\n";
+		$text .= "| révisé = 0\n";
+		
+		foreach($fields as $k => $v) { $text .= "| $k = $v\n"; }
+
+		return $text."}}";
+	}
 	
 	protected function saveArrayToPage($page, $array, $message)
 	{
 		global $wgUser;
 		
-		$title = \Title::newFromText(self::PREFIX.'-'.$this->name.'-'.$page.'.json', NS_MEDIAWIKI);
+		$title = \Title::newFromText(self::PREFIX.'-'.$this->id.'-'.$page.'.json', NS_MEDIAWIKI);
 		$page = \Article::newFromTitle($title, \RequestContext::getMain());
 		
 		// Save the content.

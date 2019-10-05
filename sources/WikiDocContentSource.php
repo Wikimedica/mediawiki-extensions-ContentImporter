@@ -35,6 +35,7 @@ class WikiDocContentSource extends MediaWikiContentSource
 					'Ultrasound' => 'ultrasound',
 					'X Ray' => 'x ray',
 					'Electrocardiogram' => 'electrocardiogram',
+					'Echocardiography' => 'echocardiography',
 					'Other Imaging Findings' => 'other imaging findings',
 					'Other Diagnostic Studies' => 'other diagnostic studies'
 			],
@@ -55,35 +56,13 @@ class WikiDocContentSource extends MediaWikiContentSource
 	{
 		$this->url = 'https://www.wikidoc.org/index.php';
 		$this->apiUrl = 'https://www.wikidoc.org/api.php';
-		parent::__construct('wikidoc');
+		parent::__construct('wikidoc', 'WikiDoc');
 		
 		if(!$this->rules)
 		{
 			$this->rules = [
-					"replaceBeforeTranslation" => [
-						'style="background:#4479BA; color: #FFFFFF;" + ' => '',
-						'align="center"' => '',
-						//' style="padding: 5px 5px; background: #F5F5F5;" ' => '',
-						'SSRI' => 'IRSS',
-						'| -' => '| Ø' // Google screws with |-, which means jumb row and | -, which is a dash inside a cell.
-						
-					],
-					"replaceAfterTranslation" => [
-						"{{{" => "{{",
-						"}}}" => "}}",
-						"Concept d'information" => 'Information concept',
-						'> {' => '>{',
-						'} <' => '}<',
-						'</ ' => '</',
-						'sémantiques / ' => 'sémantiques/',
-						'<références /' => '<references /',
-						"'' '" => "'''",
-						"' ''" => "'''",
-						"classe = Symptômes" => "class = Symptôme",
-						'[[[' => '[[',
-						']]]' => ']]',
-						'| -' => '|-'
-					],
+					"replaceBeforeTranslation" => [],
+					"replaceAfterTranslation" => [],
 					"classes" => [
 							'Maladie' => [
 									"name" => "Maladie",
@@ -367,24 +346,19 @@ class WikiDocContentSource extends MediaWikiContentSource
 		return $filteredList;
 	}
 	
-	public function getImportedTemplate($item)
+	public function getImportedTemplate($item, $fields = [])
 	{
-		$text = "\n{{Article importé d'une source\n";
-		$text .= "| accès = ".date('Y/m/d', time())."\n";
-		$text .= "| source = WikiDoc\n";
-		$text .= "| version_outil_d'importation = ".\ExtensionRegistry::getInstance()->getAllThings()['ContentImporter']['version']."\n";
-		$text .= "| révisé = 0\n";
-		
+		$sources = [];		
 		$first = true;
 		$id = '';
 		foreach($item->sources as $name => $rev)
 		{
-			$text .= "| nom$id = $name\n";
-			$text .= "| révision$id = $rev\n";
+			$sources["nom$id"] = $name;
+			$sources["révision$id"] = $rev;
 			if($first) { $id = 0; $first = false; }
 			else { $id++; }
 		}
 		
-		return $text."}}";
+		return parent::getImportedTemplate($item, $sources) ;
 	}
 }

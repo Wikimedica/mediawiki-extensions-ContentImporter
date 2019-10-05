@@ -1,6 +1,6 @@
 {
 	"name": "ContentImporter",
-	"version": "0.1a",
+	"version": "0.2a",
 	"author": [
 		"[https://wikimedi.ca/wiki/Utilisateur:Antoine_Mercier-Linteau Antoine Mercier-Linteau]"
 	],
@@ -18,7 +18,8 @@
 		"MediaWiki\\Extension\\ContentImporter\\ContentItem": "includes/ContentItem.php",
 		"MediaWiki\\Extension\\ContentImporter\\MediaWikiContentSource": "includes/MediaWikiContentSource.php",
 		"MediaWiki\\Extension\\ContentImporter\\WikEMContentSource": "sources/WikEMContentSource.php",
-		"MediaWiki\\Extension\\ContentImporter\\WikiDocContentSource": "sources/WikiDocContentSource.php"
+		"MediaWiki\\Extension\\ContentImporter\\WikiDocContentSource": "sources/WikiDocContentSource.php",
+		"MediaWiki\\Extension\\ContentImporter\\WikipediaENContentSource": "sources/WikipediaENContentSource.php"
 	},
 	"callback": "MediaWiki\\Extension\\ContentImporter\\ContentImporter::init",
 	"ConfigRegistry": {

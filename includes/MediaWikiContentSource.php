@@ -41,7 +41,7 @@ abstract class MediaWikiContentSource extends Source
 		}
 
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $this->apiUrl.'?action=query&format=json&prop=revisions&rvprop=content|ids&titles='.urlencode($title));
+		curl_setopt($ch, CURLOPT_URL, $this->apiUrl.'?action=query&redirects=true&format=json&prop=revisions&rvprop=content|ids&titles='.urlencode($title));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		$json = curl_exec($ch);
 		curl_close($ch);      
