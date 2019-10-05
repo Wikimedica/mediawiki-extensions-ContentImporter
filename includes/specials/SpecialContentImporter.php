@@ -518,39 +518,42 @@ class SpecialContentImporter extends \FormSpecialPage
 		$form->setAction($this->getURL());
 		
 		$this->getOutput()->addInlineStyle('
-			div.oo-ui-panelLayout-padded:nth-of-type(1)
-			{
-				margin-bottom: 0;
+			@media screen and (min-width: 900px) {
+				div.oo-ui-panelLayout-padded:nth-of-type(1)
+				{
+					margin-bottom: 0;
+				}
+	
+				div.oo-ui-panelLayout-padded:nth-of-type(2)
+				{
+					width: 47%;
+					float: left;
+					padding: 1%
+				}
+	
+				div.oo-ui-panelLayout-padded:nth-of-type(3)
+				{
+					width: 47%;
+					float: right;
+					padding: 1%
+				}
+	
+				.oo-ui-fieldsetLayout-header:nth-of-type(3)
+				{
+					display:none;
+				}
+	
+				div.oo-ui-panelLayout-padded:nth-of-type(4)
+				{
+					clear: both;
+				}
 			}
-
-			div.oo-ui-panelLayout-padded:nth-of-type(2)
-			{
-				width: 47%;
-				float: left;
-			}
-
-			div.oo-ui-panelLayout-padded:nth-of-type(3)
-			{
-				width: 47%;
-				float: right;
-			}
-
-			.oo-ui-fieldsetLayout-header:nth-of-type(3)
-			{
-				display:none;
-			}
-
-			div.oo-ui-panelLayout-padded:nth-of-type(4)
-			{
-				clear: both;
-			}
-
+			
 			.mw-htmlform-field-HTMLSubmitField
 			{
 				display: inline-block;
 				margin-right: 1em;
 			}
-
 			.success {font-size: 2em; color: green; }
 		');
 		

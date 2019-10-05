@@ -34,6 +34,7 @@ class WikiDocContentSource extends MediaWikiContentSource
 					'MRI' => 'MRI',
 					'Ultrasound' => 'ultrasound',
 					'X Ray' => 'x ray',
+					'Electrocardiogram' => 'electrocardiogram',
 					'Other Imaging Findings' => 'other imaging findings',
 					'Other Diagnostic Studies' => 'other diagnostic studies'
 			],
