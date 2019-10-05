@@ -37,6 +37,7 @@ class WikipediaENContentSource extends MediaWikiContentSource
 									"Classification" => ['Classification', 'position' => 3],
 									'Pathophysiology' => 'Physiopathologie',
 									'Causes of*' => 'X',
+									"Cause" => 'Étiolgies',
 									"Treatment" => 'Traitement',
 									"Diagnosis" => 'Diagnostic',
 									'Signs and symptoms' => 'Présentation clinique',
@@ -46,7 +47,7 @@ class WikipediaENContentSource extends MediaWikiContentSource
 								]
 						],
 						'Concept' => [],
-						"All" => ['equivalencies' => ['See Also' => 'X', 'External Links' => 'X', 'Name' => 'X']]
+						"All" => ['equivalencies' => ['See Also' => 'X', 'External Links' => 'X', 'Name' => 'X', 'History' => 'X']]
 				],
 			];
 		}
