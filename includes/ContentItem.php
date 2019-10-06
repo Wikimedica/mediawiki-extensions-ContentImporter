@@ -559,26 +559,6 @@ class ContentItem
 	{
 		$text = $this->processedContent;
 		
-		if($this->tasks) // Add the task banner at the end.
-		{
-			$text .= "\n\n{{".wfMessage('contentImporter-task-template');
-			foreach($this->tasks as $t)
-			{
-				$prop = '';
-				switch($t)
-				{
-					case 'links': $prop = 'ajouter_liens'; break;
-					case 'struct': $prop = 'corriger_structures'; break;
-					case 'refs': $prop = 'ajouter_références'; break;
-					case 'semantics': $prop = 'ajouter_propriétés_sémantiques'; break;
-					default: $prop = $t;
-				}
-				
-				$text .= "\n".'|'.$prop.'=1';
-			}
-			$text .= "\n}}";
-		}
-		
 		$text = str_replace("\n\n\n", "\n\n", $text); // Clean up line jumps.
 		if($this->wikidataID)
 		{
@@ -656,6 +636,27 @@ class ContentItem
 		$this->restoreCitations();
 		// Do this after translation otherwise the content gets modified.
 		$this->processedContent .= self::$source->getImportedTemplate($this);
+		
+		if($this->tasks) // Add the task banner at the end.
+		{
+			$this->processedContent.= "\n\n{{".wfMessage('contentImporter-task-template');
+			foreach($this->tasks as $t)
+			{
+				$prop = '';
+				switch($t)
+				{
+					case 'links': $prop = 'ajouter_liens'; break;
+					case 'struct': $prop = 'corriger_structures'; break;
+					case 'refs': $prop = 'ajouter_références'; break;
+					case 'semantics': $prop = 'ajouter_propriétés_sémantiques'; break;
+					default: $prop = $t;
+				}
+				
+				$this->processedContent.= "\n".'|'.$prop.'=1';
+			}
+			$this->processedContent.= "\n}}";
+		}
+		
 		
 		global $wgUser;
 		

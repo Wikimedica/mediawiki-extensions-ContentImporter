@@ -107,14 +107,6 @@ class SpecialContentImporter extends \FormSpecialPage
 	/**
 	 * @inheritdoc
 	 **/
-	protected function getLoginSecurityLevel()
-	{
-		return $this->getName(); // Reauthentify the user for this kind of operation.
-	}
-	
-	/**
-	 * @inheritdoc
-	 **/
 	protected function getFormFields()
 	{	
 		$form = [];
@@ -137,12 +129,6 @@ class SpecialContentImporter extends \FormSpecialPage
 		}
 		
 		// Display the control buttons.		
-		$form['destinationPreview'] = [
-				'type' => 'submit',
-				'buttonlabel' => 'Rafrâchir',
-				'section' => 'buttons',
-				'flags' => ['normal']
-		];
 		
 		$form['destinationPostpone'] = [
 				'type' => 'submit',
@@ -365,9 +351,16 @@ class SpecialContentImporter extends \FormSpecialPage
 			'section' => 'destination',
 			'type' => 'radio',
 			'required' => true,
-			'label' => 'Classe ontologique',
+			'label' => 'Classe ontologique (rafrâichir la page pour appliquer les changements)',
 			'options' => $destinationClassOptions,
 			'default' => 'Concept'
+		];
+		
+		$form['destinationPreview'] = [
+				'type' => 'submit',
+				'buttonlabel' => 'Rafrâchir',
+				'section' => 'destination',
+				'flags' => ['normal']
 		];
 		
 		// If the item was found and the item is not being saved. Otherwise, modifications a user made before saving get erased.
