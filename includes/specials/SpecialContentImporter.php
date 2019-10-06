@@ -109,14 +109,7 @@ class SpecialContentImporter extends \FormSpecialPage
 	 **/
 	protected function getLoginSecurityLevel()
 	{
-		global $wgUser;
-		
-		if($wgUser->loggedIn())
-		{
-			return; // Do not increase the security level for users that are not logged in.
-		}
-		
-		return $this->name; // Reauthentify the user for this kind of operation.
+		return $this->getName(); // Reauthentify the user for this kind of operation.
 	}
 	
 	/**

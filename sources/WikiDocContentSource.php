@@ -114,7 +114,7 @@ class WikiDocContentSource extends MediaWikiContentSource
 									]
 							],
 							'Concept' => [ ],
-							"All" => ['equivalencies' => ['See Also' => 'X', 'Overview' => [0, 'flatten' => true], 'External Links' => 'X', 'Related Chapters' => 'X']]
+							"All" => ['equivalencies' => ['See Also' => 'X', 'Overview' => [0, 'flatten' => true], 'External Links' => 'X', 'Related Chapters' => 'X', 'Addtionnal *' => 'X', 'Gallery' => 'X']]
 					],
 					'specialties' => [
 							'Cardiology' => 'Cardiologie',
