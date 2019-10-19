@@ -64,6 +64,29 @@ abstract class Source
 		'specialties' => []
 	];
 	
+	/**
+	 * Decodes a page to JSON.
+	 * @param string $name the name of the page
+	 * @return the JSON decoded content of the page or [] if there was none. 
+	 * */
+	protected static function getJSONPage($name)
+	{
+		$article = \Article::newFromTitle(\Title::newFromText(self::PREFIX.'-'.$name.'.json', NS_MEDIAWIKI), \RequestContext::getMain());
+		
+		$page = $article->getRevision() ? $article->getRevision()->getContent()->getNativeData(): [];
+		
+		if(!$page) { return []; } // There was not content.
+		
+		$page = json_decode($page, true);
+		
+		if($page === null) // The JSON could not be decoded.
+		{
+			throw new Exception(self::PREFIX.'-'.$name.'.json could not be decoded to JSON, please fix the file.');
+		}
+		
+		return $page;
+	}
+	
 	public function __construct($id, $name)
 	{
 		$this->id = $id;
@@ -71,24 +94,13 @@ abstract class Source
 		
 		foreach(['blacklist', 'imported', 'rules', 'skipped', 'postponed'] as $page)
 		{
-			$article = \Article::newFromTitle(\Title::newFromText(self::PREFIX.'-'.$id.'-'.$page.'.json', NS_MEDIAWIKI), \RequestContext::getMain());
-
-			$this->$page = $article->getRevision() ? $article->getRevision()->getContent()->getNativeData(): [];
-			
-			if($this->$page)
-			{
-				$this->$page = json_decode($this->$page, true);
-			}
+			$this->$page = self::getJSONPage($id.'-'.$page);
 		}
 		
 		// Retrieve the global rules.
-		$article = \Article::newFromTitle(\Title::newFromText(self::PREFIX.'-global-rules.json', NS_MEDIAWIKI), \RequestContext::getMain());
-		
-		$page = $article->getRevision() ? $article->getRevision()->getContent()->getNativeData(): [];
-		
-		if($page)
+		if($rules = self::getJSONPage('global-rules'))
 		{
-			$this->globalRules = array_merge($this->globalRules, json_decode($page, true));
+			$this->globalRules = array_merge($this->globalRules, $rules);
 		}
 	}
 	

@@ -349,9 +349,9 @@ class SpecialContentImporter extends \FormSpecialPage
 		
 		$form['destinationClass'] = [
 			'section' => 'destination',
-			'type' => 'radio',
+			'type' => 'select',
 			'required' => true,
-			'label' => 'Classe ontologique (rafrâichir la page pour appliquer les changements)',
+			'label' => 'Classe ontologique (rafraîchir la page pour appliquer les changements)',
 			'options' => $destinationClassOptions,
 			'default' => 'Concept'
 		];
