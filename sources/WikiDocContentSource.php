@@ -49,7 +49,8 @@ class WikiDocContentSource extends MediaWikiContentSource
 			],
 			'(patient information)',
 			'prevention',
-			'molecular genetic studies'
+			'molecular genetic studies',
+			'case study one'
 	];
 	
 	public function __construct()
@@ -324,11 +325,19 @@ class WikiDocContentSource extends MediaWikiContentSource
 	{
 		$filteredList = []; 
 		
-		// Skip pages that are really subpages of a subject.
-		
 		foreach(parent::filterList($list) as $item)
 		{
-			foreach($this->subPagesTitles as $title)
+			// Skip enzyme pages.
+			foreach(['oxydase', 'transferase', 'kinase', 'dehydrogenase', 'ligase'] as $enzyme)
+			{
+				// Do not skip if it is a deficiency of an enzyme (a disease).
+				if(strpos($item, $enzyme) !== false && strpos($item, 'deficiency') === false)
+				{
+					continue 2;
+				}
+			}
+			
+			foreach($this->subPagesTitles as $title) // Skip pages that are really subpages of a subject.
 			{
 				if(!is_array($title))
 				{
