@@ -78,13 +78,16 @@ class WikiDocContentSource extends MediaWikiContentSource
 											'Case Studies' => 'X',
 											'Causes of*' => 'X',
 											"Treatment" => 'Traitement',
-											"Natural History, Complications and Prognosis" => "Évolution",
+											"Natural History, Complications*" => "Évolution",
 											"Causes in*" => 'X',
 											"Diagnosis" => 'Présentation clinique',
 											'Historical Perspective' => 'X',
 											'Screening' => 'Prévention',
 											'Prevention' => 'Prévention',
-											'Molecular genetic studies' => 'Physiopathologie'
+											'Molecular genetic studies' => 'Physiopathologie',
+											'Diagnostic Criteria' => 'Diagnostic',
+											'Differential Diagnosis' => 'Diagnostic différentiel',
+											'History and Symptoms' => 'Présentation clinique'
 											
 									]
 							],

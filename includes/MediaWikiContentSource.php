@@ -70,11 +70,11 @@ abstract class MediaWikiContentSource extends Source
 	{
 		if($this->category) // If a specific category is wanted.
 		{
-			$url = '?action=query&apfilterredir=nonredirects&cmlimit=5000'.($this->_continue ? 'cmcontinue='.$this->_continue['cmcontinue']: '').'&cmtype=page&list=categorymembers&cmtitle=Category:'.urlencode($this->category).'&format=json';
+			$url = '?action=query&apfilterredir=nonredirects&cmlimit=5000'.($this->_continue ? 'cmcontinue='.$this->_continue['cmcontinue'].'&': '').'&cmtype=page&list=categorymembers&cmtitle=Category:'.urlencode($this->category).'&format=json';
 		}
 		else
 		{
-			$url = '?action=query&apfilterredir=nonredirects&'.($this->_continue ? 'apcontinue='.$this->_continue['apcontinue']: '').'aplimit=5000&list=allpages&format=json';
+			$url = '?action=query&apfilterredir=nonredirects&'.($this->_continue ? 'apcontinue='.$this->_continue['apcontinue'].'&': '').'aplimit=5000&list=allpages&format=json';
 		}
 		
 		$ch = curl_init();
@@ -92,6 +92,8 @@ abstract class MediaWikiContentSource extends Source
 		
 		$pages = [];
 		$list = $this->category ? 'categorymembers': 'allpages';
+		
+		if(!isset($content['query'][$list])) { return []; } // No more pages.
 		
 		foreach($content['query'][$list] as $page)
 		{
