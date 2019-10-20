@@ -301,18 +301,36 @@ class ContentItem
 	
 	public function restoreCitations()
 	{
+		$empties = [];
+		
 		foreach($this->citations as $id => $c)
 		{
-			$c = $c[3];
+			$t = $c[3];
+			$name = isset($c[2]['name']) ? $c[2]['name']: null;
 			
 			// This citation was empty (it probably used an invalid citation template).
-			if($c == '<ref></ref>') { $c = ''; }
+			if($t == '<ref></ref>') { $t = ''; }
 			
 			// Translate citation parameters.
-			$c = str_ireplace(['{{Cite journal', '{{Cite book', '{{Cite web'], ['{{Citation d\'un article', '{{Citation d\'un ouvrage', '{{Citation d\'un lien web'], $c);
-			$c = str_replace('|vauthors=','|auteurs=', $c);
+			$t = str_ireplace(['{{Cite journal', '{{Cite book', '{{Cite web'], ['{{Citation d\'un article', '{{Citation d\'un ouvrage', '{{Citation d\'un lien web'], $t);
+			$t = str_replace('|vauthors=','|auteurs=', $t);
 			
-			$this->processedContent = str_replace($id, $c, $this->processedContent);
+			if($name && strpos($this->processedContent, $id) === false && $t != '<ref name="'.$name.'" />')
+			{
+				// If the citation marker was not found (Google Translate sometimes deletes them).
+				$empties[$name] = $t;
+			}
+			else
+			{
+				// If the citation is a reference to a citation deleted by Google.
+				if(isset($empties[$name])) 
+				{ 
+					$t = $empties[$name]; 
+					unset($empties[$name]); // Later references should work normally. 
+				}
+				
+				$this->processedContent = str_replace($id, $t, $this->processedContent);
+			}
 		}
 	}
 	
@@ -665,7 +683,7 @@ class ContentItem
 		
 		$page = new WikiPage($title);
 		
-		// Save the content to the skipped page
+		// Save the imported page.
 		$status = $page->doEditContent( \ContentHandler::makeContent($this->processedContent, $title),
 			'Importé depuis '.ucfirst(self::$source->name),
 			0, // Flags
