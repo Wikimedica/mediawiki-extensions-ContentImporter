@@ -351,14 +351,14 @@ class SpecialContentImporter extends \FormSpecialPage
 			'section' => 'destination',
 			'type' => 'select',
 			'required' => true,
-			'label' => 'Classe ontologique (rafraîchir la page pour appliquer les changements)',
-			'options' => $destinationClassOptions,
-			'default' => 'Concept'
+			'label' => 'Classe ontologique (Appliquer les changements pour modifier la classe)',
+			'options' => array_merge(["Sélectionnez une classe" => null], $destinationClassOptions),
+			'default' => null
 		];
 		
 		$form['destinationPreview'] = [
 				'type' => 'submit',
-				'buttonlabel' => 'Rafrâchir',
+				'buttonlabel' => 'Appliquer',
 				'section' => 'destination',
 				'flags' => ['normal']
 		];
@@ -370,13 +370,14 @@ class SpecialContentImporter extends \FormSpecialPage
 			{
 				// The user has selected a destination class.
 				$form['destinationClass']['default'] = $match;
-				$match = array_flip($form['destinationClass']['options'])[$match];
+				$options = 
+				$match = array_flip($destinationClassOptions)[$match];
 				$this->getRequest()->unsetVal('wpdestinationContent');
 			}
 			else 
 			{
 				$match = $item->getClassMatch();
-			
+				
 				if(is_array($match))
 				{
 					$form['destinationClassError'] = ['type' => 'info', 'default' => 'Plus d\'une classe trouvée', 'cssclass' => 'error', 'section' => 'destination'];
@@ -522,7 +523,6 @@ class SpecialContentImporter extends \FormSpecialPage
 	 */
 	protected function alterForm(\HTMLForm $form )
 	{
-		
 		if($this->action == 'source')
 		{	
 			return;
@@ -532,33 +532,46 @@ class SpecialContentImporter extends \FormSpecialPage
 		
 		$form->setAction($this->getURL());
 		
+		// Shift the following CSS depending if there are errors to display or not.
+		$fieldNames = ['destinationClass'];
+		$nth = 1;
+		$form->loadData();
+		foreach($fieldNames as $n)
+		{
+			if($form->getField($n)->validate($form->mFieldData[$n], $form->mFieldData) !== true)
+			{
+				$nth = 2;
+				break;
+			}
+		}
+		
 		$this->getOutput()->addInlineStyle('
 			@media screen and (min-width: 900px) {
-				div.oo-ui-panelLayout-padded:nth-of-type(1)
+				div.oo-ui-panelLayout-padded:nth-of-type('.$nth.')
 				{
 					margin-bottom: 0;
 				}
 	
-				div.oo-ui-panelLayout-padded:nth-of-type(2)
+				div.oo-ui-panelLayout-padded:nth-of-type('.($nth + 1).')
 				{
 					width: 47%;
 					float: left;
 					padding: 1%
 				}
 	
-				div.oo-ui-panelLayout-padded:nth-of-type(3)
+				div.oo-ui-panelLayout-padded:nth-of-type('.($nth + 2).')
 				{
 					width: 47%;
 					float: right;
 					padding: 1%
 				}
 	
-				.oo-ui-fieldsetLayout-header:nth-of-type(3)
+				.oo-ui-fieldsetLayout-header:nth-of-type('.($nth + 2).')
 				{
 					display:none;
 				}
 	
-				div.oo-ui-panelLayout-padded:nth-of-type(4)
+				div.oo-ui-panelLayout-padded:nth-of-type('.($nth + 3).')
 				{
 					clear: both;
 				}
