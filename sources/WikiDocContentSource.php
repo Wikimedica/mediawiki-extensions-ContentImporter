@@ -180,13 +180,6 @@ class WikiDocContentSource extends MediaWikiContentSource
 		
 		if(!is_object($item)) { return $item; }
 		
-		$class = $item->getClassMatch();
-		
-		if($class !== 'Maladie' && (is_array($class) && !in_array('Maladie', $class)))
-		{
-			return $item;
-		}
-		
 		// If a title contains a link, the page is made from subpages that need to be put together.
 		if(!preg_match('/^==.*\[{2}.*$/m', $item->content))
 		{
@@ -328,7 +321,7 @@ class WikiDocContentSource extends MediaWikiContentSource
 		foreach(parent::filterList($list) as $item)
 		{
 			// Skip enzyme pages.
-			foreach(['oxydase', 'transferase', 'kinase', 'dehydrogenase', 'ligase'] as $enzyme)
+			foreach(['oxydase', 'transferase', 'kinase', 'dehydrogenase', 'ligase', 'synthase', 'hydroxylase', 'reductase'] as $enzyme)
 			{
 				// Do not skip if it is a deficiency of an enzyme (a disease).
 				if(strpos($item, $enzyme) !== false && strpos($item, 'deficiency') === false)
