@@ -381,7 +381,7 @@ class ContentItem
 			
 			// Matches with the least number of sections are considered better matches.
 			// TODO: use real sections instead of rules.
-			$matches = $matches / count($rule['equivalencies']);
+			$matches = $matches / (count($rule['equivalencies']) + 1);
 			
 			if($mostMatches < $matches) 
 			{
