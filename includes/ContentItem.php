@@ -334,7 +334,7 @@ class ContentItem
 		}
 	}
 	
-	/*$classArticle = \Article::newFromTitle('Wikimedica:Ontologie/'.$name, \RequestContext::getMain());
+	/*$classArticle = \Article::newFromTitle('Classe:'.$name, \RequestContext::getMain());
 	 $class = $classArticle->getRevision() ? $classArticle->getRevision()->getContent()->getNativeData(): false;
 	 $classSections = self::process($class, true);*/
 	
@@ -476,7 +476,7 @@ class ContentItem
 		
 		if($this->class != null) // If we should match to an existing class.
 		{
-			$article = \Article::newFromTitle(\Title::newFromText('Wikimedica:Ontologie/'.$this->class.'/Prototype', NS_PROJECT), \RequestContext::getMain());
+			$article = \Article::newFromTitle(\Title::newFromText('Classe:'.$this->class.'/Prototype', NS_PROJECT), \RequestContext::getMain());
 			$prototype = $article->getRevision() ? $article->getRevision()->getContent()->getNativeData(): '';
 			$prototype = str_replace('<includeonly></includeonly>', '', $prototype);
 			$this->_hasSemanticSections = strpos($prototype, '{{Sections sémantiques/') !== false;
@@ -664,7 +664,7 @@ class ContentItem
 				switch($t)
 				{
 					case 'links': $prop = 'ajouter_liens'; break;
-					case 'struct': $prop = 'corriger_structures'; break;
+					case 'struct': $prop = 'corriger_structure'; break;
 					case 'refs': $prop = 'ajouter_références'; break;
 					case 'semantics': $prop = 'ajouter_propriétés_sémantiques'; break;
 					default: $prop = $t;
