@@ -19,6 +19,8 @@ class ContentItem
 	
 	static public $source;
 	
+	static public $contentLanguage = 'en';
+	
 	public $title;
 	
 	public $translatedTitle;
@@ -178,6 +180,9 @@ class ContentItem
 	
 	public static function translate($text)
 	{		
+	    // Do not translate French.
+	    if(self::$contentLanguage == 'fr') { return $text; }
+		
 		//return $text;
 		
 		putenv('GOOGLE_APPLICATION_CREDENTIALS='.__DIR__.'/../vendors/GoogleTranslateAPIKey.json');

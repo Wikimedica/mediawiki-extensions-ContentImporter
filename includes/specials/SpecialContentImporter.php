@@ -17,7 +17,7 @@ namespace MediaWiki\Extension\ContentImporter;
 class SpecialContentImporter extends \FormSpecialPage
 {
 	
-	/** @var the action of the form. */
+	/** @param string the action of the form. */
 	protected $action = 'source';
 	
 	public $source;
@@ -64,6 +64,8 @@ class SpecialContentImporter extends \FormSpecialPage
 					return 'Importer à partir de WikiDoc';
 				case 'wikipedia_en':
 					return 'Importer à partir de Wikipedia (en)';
+				case 'wikipedia_fr':
+				    return 'Importer à partir de Wikipedia (fr)';
 				//case 'doknosis_observation':
 				    //return 'Importer à partir de Doknosis (observation)';
 			}
@@ -86,6 +88,10 @@ class SpecialContentImporter extends \FormSpecialPage
 				if(!$this->category) { $this->category = 'Rare diseases'; }
 				$this->source = new WikipediaENContentSource();
 				break;
+			case 'wikipedia_fr':
+			    if(!$this->category) { $this->category = 'Médicament essentiel listé par l\'OMS'; }
+			    $this->source = new WikipediaFRContentSource();
+			    break;
 			/*case 'doknosis_observation':
 			    $this->source = new DoknosisObservationContentSource();
 			    break;*/
@@ -125,8 +131,9 @@ class SpecialContentImporter extends \FormSpecialPage
 					'options' => [
 					    'WikiDoc' => 'wikidoc', 
 					    'Wikipedia (en)' => 'wikipedia_en', 
+					    'Wikipedia (fr)' => 'wikipedia_fr', 
 					    //'WikEM' => 'wikem',
-					    'Doknosis observation' => 'doknosis_observation'
+					    //'Doknosis observation' => 'doknosis_observation'
 					], //'HPO' => 'hpo', 'Disease Ontology' => 'do'],
 					'autofocus' => true,
 					'label' => 'Sélectionnez une source'
