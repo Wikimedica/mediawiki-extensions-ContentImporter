@@ -78,9 +78,9 @@ class SpecialContentImporter extends \FormSpecialPage
 	{
 		switch($name)
 		{
-			/*case 'wikem':
+			case 'wikem':
 				$this->source = new WikEMContentSource();
-				break;*/
+				break;
 			case 'wikidoc':
 				$this->source = new WikiDocContentSource();
 				break;
@@ -132,7 +132,7 @@ class SpecialContentImporter extends \FormSpecialPage
 					    'WikiDoc' => 'wikidoc', 
 					    'Wikipedia (en)' => 'wikipedia_en', 
 					    'Wikipedia (fr)' => 'wikipedia_fr', 
-					    //'WikEM' => 'wikem',
+					    'WikEM' => 'wikem',
 					    //'Doknosis observation' => 'doknosis_observation'
 					], //'HPO' => 'hpo', 'Disease Ontology' => 'do'],
 					'autofocus' => true,
