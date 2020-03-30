@@ -476,7 +476,7 @@ class ContentItem
 		
 		if($this->class != null) // If we should match to an existing class.
 		{
-			$article = \Article::newFromTitle(\Title::newFromText('Classe:'.$this->class.'/Prototype', NS_PROJECT), \RequestContext::getMain());
+			$article = \Article::newFromTitle(\Title::newFromText($this->class.'/Prototype', NS_CLASS), \RequestContext::getMain());
 			$prototype = $article->getRevision() ? $article->getRevision()->getContent()->getNativeData(): '';
 			$prototype = str_replace('<includeonly></includeonly>', '', $prototype);
 			$this->_hasSemanticSections = strpos($prototype, '{{Sections sémantiques/') !== false;

@@ -33,6 +33,8 @@ class SpecialContentImporter extends \FormSpecialPage
 	{
 		$this->mIncludable = false; // This page is not includable.
 		
+		$this->addHelpLink(\Title::newFromText('Importation automatisée de pages', NS_HELP)->getFullURL(), true);
+		
 		$this->checkReadOnly();
 		
 		$queryValues = $this->getRequest()->getQueryValues();
@@ -62,6 +64,8 @@ class SpecialContentImporter extends \FormSpecialPage
 					return 'Importer à partir de WikiDoc';
 				case 'wikipedia_en':
 					return 'Importer à partir de Wikipedia (en)';
+				//case 'doknosis_observation':
+				    //return 'Importer à partir de Doknosis (observation)';
 			}
 		}
 		
@@ -82,6 +86,9 @@ class SpecialContentImporter extends \FormSpecialPage
 				if(!$this->category) { $this->category = 'Rare diseases'; }
 				$this->source = new WikipediaENContentSource();
 				break;
+			/*case 'doknosis_observation':
+			    $this->source = new DoknosisObservationContentSource();
+			    break;*/
 			default:
 				throw new \Exception('Invalid source');
 		}
@@ -115,7 +122,12 @@ class SpecialContentImporter extends \FormSpecialPage
 		{
 			$form['source'] = [
 					'type' => 'select',
-					'options' => ['WikiDoc' => 'wikidoc', 'Wikipedia (en)' => 'wikipedia_en', 'WikEM' => 'wikem',], //'HPO' => 'hpo', 'Disease Ontology' => 'do'],
+					'options' => [
+					    'WikiDoc' => 'wikidoc', 
+					    'Wikipedia (en)' => 'wikipedia_en', 
+					    //'WikEM' => 'wikem',
+					    'Doknosis observation' => 'doknosis_observation'
+					], //'HPO' => 'hpo', 'Disease Ontology' => 'do'],
 					'autofocus' => true,
 					'label' => 'Sélectionnez une source'
 			];
@@ -290,7 +302,7 @@ class SpecialContentImporter extends \FormSpecialPage
 			$wikiItem = $wikiSource->getContentItem($item->title);
 			
 			// If there seems to be more content on the Wikipedia page.
-			if(strlen($wikiItem->content) > strlen($item->content))
+			if($wikiItem !== false && strlen($wikiItem->content) > strlen($item->content))
 			{
 				$form['moreContentOnWikipedia'] = [
 					'section' => 'destination',

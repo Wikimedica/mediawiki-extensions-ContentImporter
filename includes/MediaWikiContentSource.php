@@ -57,7 +57,6 @@ abstract class MediaWikiContentSource extends Source
 		
 		if(isset($page['missing'])) { return false; } // The requested pages does not exist.
 		 
-		
 		$item = new ContentItem(str_replace('_', ' ', $title), $page['revisions'][0]['*']);
 		$item->sources[$title] = $page['revisions'][0]['revid'];
 		
