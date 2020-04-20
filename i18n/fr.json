@@ -16,5 +16,6 @@
 	"contentImporter-success-postpone": "Importation reportée",
 	"contentImporter-return": "<big>< [[Spécial:ContentImporter|Retour]]</big>",
 	"tag-contentImporter-imported": "Importé avec ContentImporter",
-	"tag-contentImporter-imported-description": "Le contenu de cette page a été importé avec l'extension ContentImporter."
+	"tag-contentImporter-imported-description": "Le contenu de cette page a été importé avec l'extension ContentImporter.",
+	"contentImporter-extension-description": "Outil d'assistance à l'importation de contenu."
 }
