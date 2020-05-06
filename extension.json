@@ -20,7 +20,8 @@
 		"MediaWiki\\Extension\\ContentImporter\\WikEMContentSource": "sources/WikEMContentSource.php",
 		"MediaWiki\\Extension\\ContentImporter\\WikiDocContentSource": "sources/WikiDocContentSource.php",
 		"MediaWiki\\Extension\\ContentImporter\\WikipediaENContentSource": "sources/WikipediaENContentSource.php",
-		"MediaWiki\\Extension\\ContentImporter\\WikipediaFRContentSource": "sources/WikipediaFRContentSource.php"
+		"MediaWiki\\Extension\\ContentImporter\\WikipediaFRContentSource": "sources/WikipediaFRContentSource.php",
+		"MediaWiki\\Extension\\ContentImporter\\StatPearlsContentSource": "sources/StatPearlsContentSource.php"
 	},
 	"callback": "MediaWiki\\Extension\\ContentImporter\\ContentImporter::init",
 	"ConfigRegistry": {

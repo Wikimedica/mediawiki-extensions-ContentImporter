@@ -66,6 +66,8 @@ class SpecialContentImporter extends \FormSpecialPage
 					return 'Importer à partir de Wikipedia (en)';
 				case 'wikipedia_fr':
 				    return 'Importer à partir de Wikipedia (fr)';
+				case 'statpearls':
+				    return 'Importer à partir de StatPearls';
 				//case 'doknosis_observation':
 				    //return 'Importer à partir de Doknosis (observation)';
 			}
@@ -84,6 +86,9 @@ class SpecialContentImporter extends \FormSpecialPage
 			case 'wikidoc':
 				$this->source = new WikiDocContentSource();
 				break;
+			case 'statpearls':
+			    $this->source = new StatPearlsContentSource();
+			    break;
 			case 'wikipedia_en':
 				if(!$this->category) { $this->category = 'Rare diseases'; }
 				$this->source = new WikipediaENContentSource();
@@ -129,6 +134,7 @@ class SpecialContentImporter extends \FormSpecialPage
 			$form['source'] = [
 					'type' => 'select',
 					'options' => [
+					    'StatPearls' => 'statpearls',
 					    'WikiDoc' => 'wikidoc', 
 					    'Wikipedia (en)' => 'wikipedia_en', 
 					    'Wikipedia (fr)' => 'wikipedia_fr', 
