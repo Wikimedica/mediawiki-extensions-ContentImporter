@@ -57,7 +57,7 @@ class StatPearlsContentSource extends Source
 	    
 	    if($title === null) // Pick the first available item from the list.
 	    {
-            $available = array_diff(array_keys($list), $this->imported);
+            $available = array_diff(array_keys($list), array_keys($this->imported));
             $title = array_shift($available);
 	    }
         else 
@@ -77,7 +77,7 @@ class StatPearlsContentSource extends Source
         $html = curl_exec($ch);
         curl_close($ch);
         
-        if(!$html) { return false; } // The artitle was not found (broken link?)
+        if(!$html) { return false; } // The article was not found (broken link?)
         
         $dom = new \DOMDocument();
         $dom->loadXML($html);
@@ -90,37 +90,87 @@ class StatPearlsContentSource extends Source
                 break;
             }
         }
-        $h2s = $content->getElementsByTagName('h2'); // Section titles.
-        $ps = $content->getElementsByTagName('p'); // Section content.
         
         // Convert the DOM elements to Wikitext.
         $wikitext = '';
         foreach($content->childNodes as $section)
         {
             $nodes = $section->childNodes;
+            
+            if($nodes->count() == 0) { continue; } // Skip if this node has no children.
+            
             // First node is an h2.
             $wikitext .= '=='.$nodes[0]->textContent."==\n";
             
             // Remaining nodes are paragraphs.
             for($i = 1; $i < $nodes->count(); $i++)
             {
-                $wikitext .= $nodes[$i]->textContent."\n\n";
+                $wikitext .= $nodes[$i]->textContent."[0]\n\n"; // Also adds a [0] reference marker for the article itself.
             }
         }
         
-        // Rebuild references.
+        $references = [];
+        
+        // Extract references.
         foreach($content->getElementsByTagName('dd') as $i => $ref)
         {
             $ref = $ref->textContent;
             preg_match("/\[PubMed:([^\]]*)\]/", $ref, $match);
-            $pmid = trim($match[1]);
-            
-            /* Replace the first occurence with just an URL as the reference. The Visual Edition interface will allow users
-             * to convert the url to a proper reference.*/
-            $wikitext = preg_replace('/\['.($i + 1).'\]/', '<ref name=":'.($i + 1).'">https://www.ncbi.nlm.nih.gov/pubmed/'.$pmid.'</ref>', $wikitext, 1);
-            $wikitext = str_replace('['.($i + 1).']', '<ref name=":'.($i + 1).'" />', $wikitext);
+            $references[] = trim($match[1]);
         }
         
-        return new ContentItem($title, $wikitext);
+        // Extract the PMID of the article.
+        foreach($dom->getElementsByTagName('a') as $a)
+        {
+            if($a->getAttribute('title') == 'PubMed record of this page')
+            {
+                $pmid = $a->textContent;
+                array_unshift($references, $pmid);
+                break;
+            }
+        }
+        
+        // Extract the last update date of the article.
+        foreach($dom->getElementsByTagName('span') as $s)
+        {
+            if($s->getAttribute('itemprop') == 'dateModified')
+            {
+                $rev = $s->textContent;
+                $revision = (new \DateTime($rev))->format('Y/m/d');
+                break;
+            }
+        }
+        // If no revision was found, use the current date as the revision.
+        if(!isset($revision)) { $revision = date('Y/m/d', time()); }
+        
+        // Rebuild references.
+        foreach($references as $i => $id)
+        {
+            /* Replace the first occurence with just an URL as the reference. The Visual Edition interface will allow users
+             * to convert the url to a proper reference.*/
+            $wikitext = preg_replace('/\['.$i.'\]/', '<ref name=":'.$i.'">https://www.ncbi.nlm.nih.gov/pubmed/'.$id.'</ref>', $wikitext, 1);
+            $wikitext = str_replace('['.$i.']', '<ref name=":'.$i.'" />', $wikitext);
+        }
+        
+        $item = new ContentItem($title, $wikitext);
+        $item->sources = [
+            'pmid' => isset($pmid) ? $pmid: null,
+            'revision' => $revision,
+            'name' => $title 
+        ];
+        
+        return $item;
+	}
+	
+	/**
+	 * @inheritdoc
+	 * */
+	public function getImportedTemplate($item, $fields = [])
+	{
+	    return parent::getImportedTemplate($item, [
+            'révision' => $item->sources->revision,
+	        'pmid' => $item->sources->pmid,
+	        'nom' => $item->sources->name
+	    ]);
 	}
 }
