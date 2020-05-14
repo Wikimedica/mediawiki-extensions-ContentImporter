@@ -469,10 +469,6 @@ class ContentItem
 		return $rules;
 	}
 	
-	/** @var boolean if the prototype defines a semantic sections template. It might get overwritten so this variable will tell
-	 * if a check is needed during post processing. */
-	private $_hasSemanticSections = false;
-	
 	/**
 	 * Process the ContentItem's content according to the rules defined for the class.
 	 * */
@@ -523,7 +519,6 @@ class ContentItem
 			$article = \Article::newFromTitle(\Title::newFromText($this->class.'/Prototype', NS_CLASS), \RequestContext::getMain());
 			$prototype = $article->getRevision() ? $article->getRevision()->getContent()->getNativeData(): '';
 			$prototype = str_replace('<includeonly></includeonly>', '', $prototype);
-			$this->_hasSemanticSections = strpos($prototype, '{{Sections sémantiques/') !== false;
 			$prototype = self::process($prototype);
 			unset($prototype['Notes']); // This is not used by other wikis.
 		
@@ -655,21 +650,6 @@ class ContentItem
 			}
 		}
 		$text = str_replace("| spécialités =", "| spécialités = ".implode(', ', $specialties), $text);
-		
-		// If the semantic sections was erased.
-		if($this->_hasSemanticSections && strpos($text, '{{Sections sémantiques/') === false)
-		{
-			foreach(['Notes', 'Références'] as $section)
-			{
-				foreach(['==', '== '] as $eq)
-				{
-					$count = 0;
-					$text = str_replace($eq.$section, "{{Sections sémantiques/$this->class}}\n\n== $section" ,$text, $count);
-					
-					if($count) { break 2; } // Something was replaced
-				}
-			}
-		}
 		
 		$this->processedContent = $text;
 	}
