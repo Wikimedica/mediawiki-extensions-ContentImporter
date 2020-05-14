@@ -308,28 +308,6 @@ class SpecialContentImporter extends \FormSpecialPage
 			'rows' => 53
 		];
 		
-		// If the page on Wikipedia has more content.
-		if(!$success && $item->translatedTitle && $this->source->id != 'wikipedia_en')
-		{
-			$wikiSource = new WikipediaENContentSource();
-			$wikiItem = $wikiSource->getContentItem($item->title);
-			
-			// If there seems to be more content on the Wikipedia page.
-			if($wikiItem !== false && strlen($wikiItem->content) > strlen($item->content))
-			{
-				$form['moreContentOnWikipedia'] = [
-					'section' => 'destination',
-					'type' => 'info',
-					'raw' => true,
-					'default' => wfMessage('contentImporter-page-more-content-on-Wikipedia', [
-						'https://en.wikipedia.org/wiki/'.$item->title,
-						$this->getPageTitle()->getLinkURL(['action' => 'import', 'source' => 'wikipedia_en', 'sourceTitle' => $item->title])
-					])->plain(),
-					'cssclass' => 'warning'
-				];
-			}
-		}
-		
 		// If the page already exists.
 		if(!$success && $item->translatedTitle && \Title::newFromText($item->translatedTitle)->exists())
 		{
