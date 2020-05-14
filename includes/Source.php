@@ -161,7 +161,7 @@ abstract class Source
 			$page = \Article::newFromTitle($title, \RequestContext::getMain());
 			
 			// Save the content.
-			$status = $page->doEditContent( \ContentHandler::makeContent('#REDIRECTION [['.$item->translatedTitle.']]', $title),
+			$status = $page->doEditContent( \ContentHandler::makeContent('#REDIRECTION [['.$saved->getFullText().']]', $title),
 				'Création de la redirection',
 				0, // Flags
 				false, // OriginalRevId

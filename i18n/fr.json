@@ -9,7 +9,7 @@
 	"contentImporter-buttons": "",
 	"contentImporter-preview": "Prévisualisation",
 	"contentImporter-task-template": "Invitation",
-	"contentImporter-success-save": "L'item [[$1]] a été importé avec succès",
+	"contentImporter-success-save": "L'item [[$1|$2]] a été importé avec succès",
 	"contentImporter-page-exists": "La page [[$1]] existe déjà",
 	"contentImporter-page-more-content-on-Wikipedia": "La <a href=\"$1\" target=\"_blank\">page sur Wikipedia</a> semble offrir plus de contenu (<a target=\"_blank\" href=\"$2\">importer</a>)",
 	"contentImporter-success-skip": "L'item a été sauté avec succès",

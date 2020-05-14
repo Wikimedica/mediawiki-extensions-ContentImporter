@@ -511,8 +511,7 @@ class ContentItem
 		}
 		
 		$sections = self::process($this->processedContent);
-		//$lastSection = array_pop($sections); // Whatever is last (usually References of External Links) gets removed.
-		unset($sections['References']);
+		unset($sections['References']); // Always removeé
 		
 		if($this->class != null) // If we should match to an existing class.
 		{
@@ -555,17 +554,46 @@ class ContentItem
 				}
 				else // Add the section under a different title.
 				{
-					if($rule['position'] !== false) // Insert item at position.
+				    $title = $rule[0];
+				    $destinationSection = &$prototype;
+				    
+				    if(strpos($title, '/')) // If this section is a subsection of another.
+				    {
+				        $parts = explode('/', $title);
+				        for($i = 0; $i < count($parts) - 1; $i++) // Create the intermediate sections down to the subsection.
+				        {
+				            $t = $parts[$i];
+				            // If that section does not exist, add it.
+				            if(!isset($destinationSection[$t])) { $destinationSection[$t] = [0 => '']; }
+				            $title = $parts[$i + 1];
+				            // If that section is string (meaning it has no sub sections, wrap it in an array.
+				            if(is_string($destinationSection[$t])) { $destinationSection[$t] = [0 => $destinationSection[$t]]; }
+				            $destinationSection = &$destinationSection[$t];
+				        }
+				    }
+				    
+				    /* If there is already content in that section. If there is content, check if it's not the default
+				     * content for that section. */
+				    if((isset($destinationSection[$title]) && is_array($destinationSection[$title]) && strpos($destinationSection[$title][0], 'Section ontologique') === false) ||
+				        (isset($destinationSection[$title]) && is_string($destinationSection[$title]) && strpos($destinationSection[$title], 'Section ontologique') === false)
+			        )
+				    {
+				        // Merge the two sections.
+				        $s = $this->_mergeSections($destinationSection[$title], $sections[$section]);
+				    }
+				    else { $s = $sections[$section]; }
+				    
+				    if($rule['position'] !== false) // Insert item at position.
 					{
-						$p1 = $p2 = $prototype;
-						$prototype = array_merge(
+					    $p1 = $p2 = $destinationSection;
+					    $destinationSection = array_merge(
 								array_splice($p1, 0, $rule['position']),
-								[$rule[0] => $sections[$section]],
+								[$title => $s],
 								array_splice($p2, $rule['position'])
 						);
 					}
-					else { $prototype[$rule[0]] = $sections[$section]; }
-					unset($sections[$section]);
+					else { $destinationSection[$title] = $s; }
+					unset($sections[$section]); // Done, unset.
 				}
 			}
 		}
@@ -711,7 +739,7 @@ class ContentItem
 		global $wgUser;
 		
 		// Save the page in the user's drafts.
-		$title = \Title::newFromText($wgUser->getUserPage()->getFullText.'/Brouillons/'.$this->translatedTitle);
+		$title = \Title::newFromText($wgUser->getUserPage()->getFullText().'/Brouillons/'.$this->translatedTitle);
 		
 		$page = new WikiPage($title);
 		

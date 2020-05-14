@@ -508,7 +508,7 @@ class SpecialContentImporter extends \FormSpecialPage
 			    [$data['redirect1'], $data['redirect2'], $data['redirect3']]
 		    );
 			
-			$session->set('contentImporter-success-save', $title->getFullText());
+			$session->set('contentImporter-success-save', $title->getFullText(), $title->getSubpageText());
 			$this->getOutput()->redirect($this->getURL());
 			return;
 		}
