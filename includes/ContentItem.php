@@ -13,6 +13,9 @@ namespace MediaWiki\Extension\ContentImporter;
 use Google\Cloud\Translate\TranslateClient;
 use WikiPage;
 
+/**
+ * This class represents a content item fetched from a source.
+ * */
 class ContentItem
 {
 	const MODIFICATION_TAG = 'contentImporter-imported';
@@ -43,8 +46,14 @@ class ContentItem
 	public $sources = [];
 	
 	/** @var array stores citations in the format outputted by \Parser::extractTagsAndParams() */
-	public $citations = [];
+	protected $citations = [];
 	
+	/**
+	 * Build a ContentItem from POST data.
+	 * @param array $data
+	 * @param string $prefix prefix for the properties
+	 * @return ContentItem
+	 * */
 	public static function fromData($data, $prefix = '')
 	{
 		$item = new self($data[$prefix.'sourceTitle'], $data[$prefix.'sourceContent']);
@@ -60,12 +69,16 @@ class ContentItem
 		$item->sources = isset($data[$prefix.'sourceSources']) ? json_decode($data[$prefix.'sourceSources']): [];
 		
 		return $item;
-		
 	}
 	
+	/**
+	 * Process a wikicode string into sections.
+	 * @param string $content the wikicode to process
+	 * @param int $depth the maximum depth of sections to process.
+	 * @return [] the processed content 
+	 * */
 	public static function process($content, $depth = 2)
 	{
-		
 		$sections = [];
 		$matchStart = [];
 		$matchEnd = [];
@@ -139,6 +152,12 @@ class ContentItem
 		return $sections;
 	}
 	
+	/**
+	 * Checks if a title matches a pattern.
+	 * @param string $pattern
+	 * @param string $title
+	 * @return bool true if the title matches the pattern.
+	 * */
 	public static function titleMatch($pattern, $title)
 	{
 		$title = str_replace(["\n", "\r"], '', $title);
@@ -154,6 +173,11 @@ class ContentItem
 		return false;
 	}
 	
+	/** Converts an array of sections to a string.
+	 * @param array $sections
+	 * @param int $level the section level to start from 
+	 * @param string 
+	 * */
 	public static function sectionsToText($sections, $level = 2)
 	{
 		$text = '';
@@ -171,13 +195,21 @@ class ContentItem
 		
 		return $text;
 	}
-	
+    /**
+     * Class constructor.
+     * @param string $title the title of the item.
+     * @param string $content the textual content of the item.
+     * */	
 	public function __construct($title, $content)
 	{
 		$this->title = $title;
 		$this->content = $content;
 	}
 	
+	/**
+	 * Translate some text using the GoodleTranslate service.
+	 * @param string $text
+	 * @return string*/
 	public static function translate($text)
 	{		
 	    // Do not translate French.
@@ -250,8 +282,8 @@ class ContentItem
 	
 	/**
 	 * Extract all citations from the text and replace them with patterns.
-	 * @var boolean $noRefs allow citation references, if set to true, references will be resolved (useful if a section which
-	 * contained the original citation gets removed during processins).
+	 * @param boolean $noRefs allow citation references, if set to true, references will be resolved (useful if a section which
+	 * contained the original citation gets removed during processing).
 	 * */
 	public function extractCitations($noRefs = false)
 	{
@@ -304,6 +336,9 @@ class ContentItem
 		return;
 	}
 	
+	/**
+	 * Restores extracted citations into the content.
+	 * */
 	public function restoreCitations()
 	{
 		$empties = [];
@@ -339,10 +374,7 @@ class ContentItem
 		}
 	}
 	
-	/*$classArticle = \Article::newFromTitle('Classe:'.$name, \RequestContext::getMain());
-	 $class = $classArticle->getRevision() ? $classArticle->getRevision()->getContent()->getNativeData(): false;
-	 $classSections = self::process($class, true);*/
-	
+	/* @var string|array caches the match result. **/
 	private $_match;
 	
 	/**
@@ -352,13 +384,6 @@ class ContentItem
 	{
 		if($this->_match) { return $this->_match; }
 		
-		/*$sections = [];
-		$func = function($k, $v) use (&$sections) 
-		{ 
-			if(!isset($sections[$k])) { $sections[$k] = $v; }
-			if(is_array($k)) { $sections[$k] = $v; }
-		};
-		array_walk_recursive(self::process($this->content), $func); // Flatten array.*/
 		$sections = self::process($this->content);
 		
 		$class = 'Concept';
@@ -404,6 +429,12 @@ class ContentItem
 		return $this->_match = $equalMatches ? array_merge($equalMatches, [$class]): $class;
 	}
 	
+	/**
+	 * Merges sections together.
+	 * @param $s1
+	 * @param $s2
+	 * @return string|array the merged sections.
+	 * */
 	private static function _mergeSections($s1, $s2)
 	{
 		if(is_string($s1) && is_string($s2)) { return $s1.$s2; }
@@ -412,6 +443,11 @@ class ContentItem
 		if(is_array($s1) && is_array($s2)) { $s1[0] .= $s2[0]; unset($s2[0]); return array_merge($s1, $s2); }
 	}
 	
+	/**
+	 * Build import rules for a class. 
+	 * @param null|string $class the class to build rules for, null if for the current class.
+	 * @param bool $includeAll include rules that apply to all classes.
+	 * @return array normalized import rules.*/
 	public function buildRules($class = null, $includeAll = true)
 	{
 		$class = !$class ? $this->class: $class;
@@ -437,6 +473,9 @@ class ContentItem
 	 * if a check is needed during post processing. */
 	private $_hasSemanticSections = false;
 	
+	/**
+	 * Process the ContentItem's content according to the rules defined for the class.
+	 * */
 	public function processText()
 	{
 		$this->processedContent = $this->content;
@@ -578,6 +617,10 @@ class ContentItem
 		$this->processedContent = trim($text, "\n ");
 	}
 	
+	/**
+	 * Do some post processing on the processed content.
+	 * This includes dealing with extra line jumps, filling some template fields, etc.
+	 * */
 	public function postProcessText()
 	{
 		$text = $this->processedContent;
@@ -601,9 +644,6 @@ class ContentItem
 		}
 		
 		$text = str_replace('| image = Besoin d\'une image.svg', '| image =', $text); // Remove the default image.
-		
-		// This translated item needs to be checked.
-		//$text .= "\n[[Catégorie:".wfMessage('contentImporter-translation-check-category')."]]";
 		
 		// Add specialties detected from the categories in the source.
 		$specialties = [];
@@ -634,6 +674,9 @@ class ContentItem
 		$this->processedContent = $text;
 	}
 	
+	/** 
+	 * Attempts to fetch the WikiData ID for this item.
+	 * @return string|false the WikiData ID or false if it was not found. */
 	public function getWikiDataID()
 	{
 		$ch = curl_init();
@@ -652,11 +695,16 @@ class ContentItem
 		return $this->wikidataID =  isset($result['query']['pages'][0]['pageprops']['wikibase_item']) ? $result['query']['pages'][0]['pageprops']['wikibase_item']: false;
 	}
 	
+	/**
+	 * Save the item as a new wiki page.
+	 * @return StatusItem
+	 * */
 	public function save()
 	{
 		$this->extractCitations();
 		$this->processedContent = $this->translate($this->processedContent);
 		$this->restoreCitations();
+		
 		// Do this after translation otherwise the content gets modified.
 		$this->processedContent .= self::$source->getImportedTemplate($this);
 		
@@ -679,7 +727,6 @@ class ContentItem
 			}
 			$this->processedContent.= "\n}}";
 		}
-		
 		
 		global $wgUser;
 		
