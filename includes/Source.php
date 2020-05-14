@@ -130,22 +130,32 @@ abstract class Source
 		return $list;
 	}
 	
+	/** 
+	 * Save a ContentItem coming from a source and it's redirects. 
+	 * @param ContentItem $item
+	 * @param array $redirects
+	 * @return Title the title object of the saved item.$this
+	 * */
 	public function save(ContentItem $item, $redirects = [])
 	{
 		global $wgUser;
 		
+		// Save the item in the imported list for that source.
 		$this->imported[$item->title] = $item->translatedTitle;
 		
-		$item->save();
+		$saved = $item->save();
 		
 		$watchlist = \MediaWiki\MediaWikiServices::getInstance()->getWatchedItemStore();
 		
-		$watchlist->addWatch($wgUser, \Title::newFromText($item->translatedTitle));
+		$watchlist->addWatch($wgUser, $saved);
+		
+		// Make sure the translatedTitle is actually used in case the content is not saved in the main namespace.
+		$redirects[] = $item->translatedTitle;
 		
 		foreach($redirects as $r)
 		{
 			if(!$r) { continue; }
-			if($r == $item->translatedTitle) { continue; } // Do not add a redirect that has the same name as the parent.
+			if($r == $saved->getFullText()) { continue; } // Do not add a redirect that has the same name as the parent.
 			
 			$title = \Title::newFromText($r);
 			$page = \Article::newFromTitle($title, \RequestContext::getMain());
@@ -163,7 +173,9 @@ abstract class Source
 			$watchlist->addWatch($wgUser, $title);
 		}
 		
-		return $this->saveArrayToPage('imported', $this->imported, 'Item importé');
+		$this->saveArrayToPage('imported', $this->imported, 'Item importé');
+		
+		return $saved;
 	}
 	
 	public function skip(ContentItem $item)

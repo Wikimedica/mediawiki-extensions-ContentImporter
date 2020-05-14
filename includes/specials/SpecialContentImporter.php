@@ -504,7 +504,7 @@ class SpecialContentImporter extends \FormSpecialPage
 			return;
 		}
 		
-		// If this item is being saved for lated.
+		// If this item is being saved for later.
 		if(isset($data['destinationPostpone']) && $data['destinationPostpone'] === true)
 		{
 			$item = ContentItem::fromData($data);
@@ -525,11 +525,12 @@ class SpecialContentImporter extends \FormSpecialPage
 		
 		if(isset($data['destinationSave']) && $data['destinationSave'] === true)
 		{
-			$item = ContentItem::fromData($data);
-			//$item->translatedContent = $data['destinationContent'];
-			$this->source->save($item, [$data['redirect1'], $data['redirect2'], $data['redirect3']]);
+			$title = $this->source->save(
+			    ContentItem::fromData($data), 
+			    [$data['redirect1'], $data['redirect2'], $data['redirect3']]
+		    );
 			
-			$session->set('contentImporter-success-save', $item->translatedTitle);
+			$session->set('contentImporter-success-save', $title->getFullText());
 			$this->getOutput()->redirect($this->getURL());
 			return;
 		}

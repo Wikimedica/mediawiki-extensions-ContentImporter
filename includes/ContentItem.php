@@ -667,7 +667,7 @@ class ContentItem
 		
 		if(!$result)
 		{
-			throw new \Exception('curl failed');
+			throw new \Exception('Curl failed while querying for the WikiData ID.');
 		}
 		
 		$result = json_decode($result, true);
@@ -677,7 +677,7 @@ class ContentItem
 	
 	/**
 	 * Save the item as a new wiki page.
-	 * @return StatusItem
+	 * @return Title the title object of the saved page.
 	 * */
 	public function save()
 	{
@@ -710,8 +710,8 @@ class ContentItem
 		
 		global $wgUser;
 		
-		$title = \Title::newFromText($this->translatedTitle);
-		//$page = \Article::newFromTitle($title, \RequestContext::getMain());
+		// Save the page in the user's drafts.
+		$title = \Title::newFromText($wgUser->getUserPage()->getFullText.'/Brouillons/'.$this->translatedTitle);
 		
 		$page = new WikiPage($title);
 		
@@ -725,6 +725,6 @@ class ContentItem
 			[self::MODIFICATION_TAG]
 		);
 		
-		return $status;
+		return $title;
 	}
 }
