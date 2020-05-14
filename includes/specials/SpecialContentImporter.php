@@ -184,7 +184,7 @@ class SpecialContentImporter extends \FormSpecialPage
 			$t = \Title::newFromText($t);
 			$form['success'] = [
 					'type' => 'info',
-					'default' => wfMessage('contentImporter-success-save', [$t->getFullText(), $t->getSubpageText()])->parse(),
+					'default' => wfMessage('contentImporter-success-save', [$t->getFullUrl(), $t->getSubpageText()])->text(),
 					'cssclass' => 'success',
 					'section' => 'source',
 					'raw' => true
