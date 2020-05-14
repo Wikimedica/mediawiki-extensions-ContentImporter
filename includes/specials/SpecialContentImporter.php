@@ -181,9 +181,10 @@ class SpecialContentImporter extends \FormSpecialPage
 		if($t = $session->get('contentImporter-success-save'))
 		{
 			$success = true;
+			$t = \Title::newFromText($t);
 			$form['success'] = [
 					'type' => 'info',
-					'default' => wfMessage('contentImporter-success-save', [$t])->parse(),
+					'default' => wfMessage('contentImporter-success-save', [$t->getFullText(), $t->getSubpageText()])->parse(),
 					'cssclass' => 'success',
 					'section' => 'source',
 					'raw' => true
@@ -508,7 +509,7 @@ class SpecialContentImporter extends \FormSpecialPage
 			    [$data['redirect1'], $data['redirect2'], $data['redirect3']]
 		    );
 			
-			$session->set('contentImporter-success-save', $title->getFullText(), $title->getSubpageText());
+			$session->set('contentImporter-success-save', $title->getFullText());
 			$this->getOutput()->redirect($this->getURL());
 			return;
 		}
