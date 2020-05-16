@@ -45,7 +45,7 @@ class StatPearlsContentSource extends Source
 
 	        if(strpos($attr->nodeValue, '/books/n/statpearls/article-') !== 0) { continue; }
 	        
-	        $pages[$item->textContent] = $attr->nodeValue;
+	        $pages[$attr->nodeValue] = $item->textContent;
 	    }
 	    
 	    return $pages;
@@ -57,15 +57,21 @@ class StatPearlsContentSource extends Source
 	    
 	    if($title === null) // Pick the first available item from the list.
 	    {
-            $available = array_diff(array_keys($list), array_keys($this->imported));
-            $title = array_shift($available);
+            if(!$available = $this->filterList($list))
+            {
+                return false; // No more elements to fetch.
+            }
+            
+            $url = key($available);
+            $title = reset($available);
+            array_shift($available);
 	    }
         else 
         {
+            $list = array_flip($list);
             if(!isset($list[$title])) { return false; } // Title was not found.
+            $url = $list[$title];
         }
-        
-        $url = $list[$title];
         
         // Fetch the article's content.
         $ch = curl_init();

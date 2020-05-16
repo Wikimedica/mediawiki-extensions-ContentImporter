@@ -354,7 +354,7 @@ class SpecialContentImporter extends \FormSpecialPage
 		$form['destinationClass'] = [
 			'section' => 'destination',
 			'type' => 'select',
-			'required' => true,
+			'required' => !isset($_POST['wpsourceTitle']), // This field is not required if a new title is being fetched.
 			'label' => 'Classe ontologique (Appliquer les changements pour modifier la classe)',
 			'options' => array_merge(["Sélectionnez une classe" => null], $destinationClassOptions),
 			'default' => null
