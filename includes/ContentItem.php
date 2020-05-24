@@ -608,7 +608,7 @@ class ContentItem
 			unset($sections[0]);
 		}
 		
-		if($this->class && $prototype) { $refs = array_pop($prototype); } // Remove the references from the prototype to add them back later.
+		//if($this->class && $prototype) { $refs = array_pop($prototype); } // Remove the references from the prototype to add them back later.
 		
 		foreach($sections as $name => $section)
 		{
@@ -620,7 +620,7 @@ class ContentItem
 		
 		$prototype = array_merge($prototype, $sections); // Add the sections to the end of the prototype. 
 		
-		if($this->class && $prototype) 
+		/*if($this->class && $prototype) 
 		{ 
 			$prototype['Références'] = $refs;
 			
@@ -633,7 +633,7 @@ class ContentItem
 					break;
 				}
 			} 
-		}
+		}*/
 		
 		$text = self::sectionsToText($prototype);
 		
