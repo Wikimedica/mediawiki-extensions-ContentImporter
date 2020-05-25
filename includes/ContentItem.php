@@ -608,8 +608,6 @@ class ContentItem
 			unset($sections[0]);
 		}
 		
-		//if($this->class && $prototype) { $refs = array_pop($prototype); } // Remove the references from the prototype to add them back later.
-		
 		foreach($sections as $name => $section)
 		{
 			if($section) // If this section has content.
@@ -620,9 +618,11 @@ class ContentItem
 		
 		$prototype = array_merge($prototype, $sections); // Add the sections to the end of the prototype. 
 		
-		/*if($this->class && $prototype) 
+		if($this->class && $prototype) 
 		{ 
-			$prototype['Références'] = $refs;
+		    $refs = $prototype['Références'];
+		    unset($prototype['Références']); // Remove the reference section provided
+		    $prototype['Références'] = $refs; // Add them back to the end.
 			
 			// If the text has citations, make sure there is no banner telling otherwise.
 			foreach($this->citations as $k => $v) 
@@ -633,7 +633,7 @@ class ContentItem
 					break;
 				}
 			} 
-		}*/
+		}
 		
 		$text = self::sectionsToText($prototype);
 		

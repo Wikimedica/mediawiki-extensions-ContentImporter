@@ -85,6 +85,8 @@ class StatPearlsContentSource extends Source
         
         if(!$html) { return false; } // The article was not found (broken link?)
         
+        $html = str_replace(['<li class="half_rhythm">', '</li>'], ["\n* ", ''], $html); // Replace lists by wikicode so they do not get destroyed.
+        
         $dom = new \DOMDocument();
         $dom->loadXML($html);
         // getElementById fails to get the id because validation fails, find it manually.
