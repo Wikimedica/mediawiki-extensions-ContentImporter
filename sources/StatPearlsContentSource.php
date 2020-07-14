@@ -45,7 +45,7 @@ class StatPearlsContentSource extends Source
 
 	        if(strpos($attr->nodeValue, '/books/n/statpearls/article-') !== 0) { continue; }
 	        
-	        $pages[$attr->nodeValue] = $item->textContent;
+	        $pages[$attr->nodeValue] = trim($item->textContent);
 	    }
 	    
 	    return $pages;
@@ -68,6 +68,7 @@ class StatPearlsContentSource extends Source
 	    }
         else 
         {
+            $title = trim($title);
             $list = array_flip($list);
             if(!isset($list[$title])) { return false; } // Title was not found.
             $url = $list[$title];
