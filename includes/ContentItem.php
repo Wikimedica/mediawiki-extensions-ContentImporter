@@ -195,6 +195,7 @@ class ContentItem
 		
 		return $text;
 	}
+
     /**
      * Class constructor.
      * @param string $title the title of the item.
@@ -437,10 +438,10 @@ class ContentItem
 	 * */
 	private static function _mergeSections($s1, $s2)
 	{
-		if(is_string($s1) && is_string($s2)) { return $s1.$s2; }
-		if(is_array($s1) && is_string($s2)) { $s1[0] .= $s2; return $s1; }
-		if(is_string($s1) && is_array($s2)) { $s1 .= $s2[0]; $s2[0] = $s1; return $s2; }
-		if(is_array($s1) && is_array($s2)) { $s1[0] .= $s2[0]; unset($s2[0]); return array_merge($s1, $s2); }
+		if(is_string($s1) && is_string($s2)) { return $s1."\n".$s2; }
+		if(is_array($s1) && is_string($s2)) { $s1[0] .= "\n".$s2; return $s1; }
+		if(is_string($s1) && is_array($s2)) { $s1 .= "\n".$s2[0]; $s2[0] = $s1; return $s2; }
+		if(is_array($s1) && is_array($s2)) { $s1[0] .= "\n".$s2[0]; unset($s2[0]); return array_merge($s1, $s2); }
 	}
 	
 	/**
@@ -511,7 +512,7 @@ class ContentItem
 		}
 		
 		$sections = self::process($this->processedContent);
-		unset($sections['References']); // Always removeé
+		unset($sections['References']); // Always remove.
 		
 		if($this->class != null) // If we should match to an existing class.
 		{
@@ -519,7 +520,7 @@ class ContentItem
 			$prototype = $article->getRevision() ? $article->getRevision()->getContent()->getNativeData(): '';
 			$prototype = str_replace('<includeonly></includeonly>', '', $prototype);
 			$prototype = self::process($prototype);
-			unset($prototype['Notes']); // This is not used by other wikis.
+			unset($prototype['Notes']); // This is not used by other sources.
 		
 			// Convert the source text's sections to the class' sections using equivalency rules.
 			foreach($this->buildRules() as $pattern => $rule)
@@ -541,9 +542,6 @@ class ContentItem
 				
 				if($rule[0] === 0) // This is the introduction.
 				{
-					$prototype[0] = str_replace(['{{Section ontologique|classe='.$this->class.'|nom=Introduction}}', '{{Section ontologique|nom=Introduction|classe='.$this->class.'}}'], '', $prototype[0]);
-					$prototype[0] = str_replace('Introduction', '', $prototype[0]);
-					
 					$prototype[0] = self::_mergeSections($prototype[0], $sections[$section]);
 					unset($sections[$section]);
 					unset($sections[0]);
@@ -571,17 +569,22 @@ class ContentItem
 				            $destinationSection = &$destinationSection[$t];
 				        }
 				    }
-				    
-				    /* If there is already content in that section. If there is content, check if it's not the default
-				     * content for that section. */
-				    if((isset($destinationSection[$title]) && is_array($destinationSection[$title]) && strpos($destinationSection[$title][0], 'Section ontologique') === false) ||
-				        (isset($destinationSection[$title]) && is_string($destinationSection[$title]) && strpos($destinationSection[$title], 'Section ontologique') === false)
-			        )
-				    {
-				        // Merge the two sections.
-				        $s = $this->_mergeSections($destinationSection[$title], $sections[$section]);
-				    }
-				    else { $s = $sections[$section]; }
+					
+					/* If this section has subsections, merge the two sections to prevent the subsections from
+					 * being overwritten, as ContentImporter does not yet support subsections. */
+					if((isset($destinationSection[$title]) && is_array($destinationSection[$title]) && strpos($destinationSection[$title][0], '===') !== false) ||
+					(isset($destinationSection[$title]) && is_string($destinationSection[$title]) && strpos($destinationSection[$title], '===') !== false)
+					)
+					{
+						// Merge the two sections.
+				        $s = $this->_mergeSections($destinationSection[$title]."\n", $sections[$section]);
+					}
+				    else { 
+						$s = $this->_mergeSections(
+							isset($destinationSection[$title]) ? $destinationSection[$title]: '', 
+							$sections[$section]
+						); 
+					}
 				    
 				    if($rule['position'] !== false) // Insert item at position.
 					{
@@ -714,7 +717,8 @@ class ContentItem
 		$this->restoreCitations();
 		
 		// Do this after translation otherwise the content gets modified.
-		$this->processedContent .= self::$source->getImportedTemplate($this);
+		// Adds a template that tells where the article was imported from.
+		$this->processedContent .= str_replace(['<references />', '<references/>'], self::$source->getImportedTemplate($this)."\n<references />");
 		
 		if($this->tasks) // Add the task banner at the end.
 		{
