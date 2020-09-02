@@ -718,7 +718,7 @@ class ContentItem
 		
 		// Do this after translation otherwise the content gets modified.
 		// Adds a template that tells where the article was imported from.
-		$this->processedContent .= str_replace(['<references />', '<references/>'], self::$source->getImportedTemplate($this)."\n<references />");
+		$this->processedContent = str_replace(['<references />', '<references/>'], self::$source->getImportedTemplate($this)."\n<references />", $this->processedContent);
 		
 		if($this->tasks) // Add the task banner at the end.
 		{
