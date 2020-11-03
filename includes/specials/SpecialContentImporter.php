@@ -325,8 +325,8 @@ class SpecialContentImporter extends \FormSpecialPage
 			'section' => 'destination',
 			'type' => 'text',
 			'label' => 'Titre',
-			'default' => $item->translatedTitle,	
-			'required' => true
+			'default' => $item->translatedTitle ?: ' ', // Put something in the field so it does not throw an error when the requested item does not exist.	
+			'required' => !isset($_POST['wpsourceTitle']), // This field is not required if a new title is being fetched.
 		];
 		
 		for($i = 1; $i < 4; $i++)
@@ -355,9 +355,10 @@ class SpecialContentImporter extends \FormSpecialPage
 			'section' => 'destination',
 			'type' => 'select',
 			'required' => !isset($_POST['wpsourceTitle']), // This field is not required if a new title is being fetched.
-			'label' => 'Classe ontologique (Appliquer les changements pour modifier la classe)',
+			'label' => 'Classe ontologique (Appliquer les changements pour visualiser le résultat)',
 			'options' => array_merge(["Sélectionnez une classe" => null], $destinationClassOptions),
-			'default' => null
+			'default' => null,
+			'validation-callback' => [$this, 'validateDestinationClass']
 		];
 		
 		$form['destinationPreview'] = [
@@ -382,13 +383,9 @@ class SpecialContentImporter extends \FormSpecialPage
 			{
 				$match = $item->getClassMatch();
 				
-				if(is_array($match))
+				if(!is_array($match)) // If match is an array, more than one class was found.
 				{
-					$form['destinationClassError'] = ['type' => 'info', 'default' => 'Plus d\'une classe trouvée', 'cssclass' => 'error', 'section' => 'destination'];
-				}
-				else
-				{
-					$form['destinationClass']['default'] = $match;
+					$form['destinationClass']['default'] = $match; // Only one match, good to go.
 				}
 			}
 			
@@ -425,7 +422,7 @@ class SpecialContentImporter extends \FormSpecialPage
 			//'required' => true
 		];
 		
-		if($item->content !== null) // If there is content to preview.
+		if($item->content) // If there is content to preview.
 		{
 			$parserOptions = new \ParserOptions();
 			$parserOptions->setIsPreview(true);
@@ -453,6 +450,17 @@ class SpecialContentImporter extends \FormSpecialPage
 		return $form;
 	}
 	
+	/**
+	 * Makes sure a class was selected in the destinationClass field.
+	 * @param string $destinationClass the name of the destination class
+	 * @param array $data all the data submitted to the form
+	 * @return true|string true if validation succeeded
+	 */
+	public static function validateDestinationClass( $destinationClass, $data ) 
+	{
+		return $destinationClass? true: 'Plus d\'une classe trouvée';
+	}
+
 	/**
 	 * @inheritdoc
 	 **/

@@ -57,7 +57,7 @@ class ContentItem
 	public static function fromData($data, $prefix = '')
 	{
 		$item = new self($data[$prefix.'sourceTitle'], $data[$prefix.'sourceContent']);
-		$item->translatedTitle = isset($data[$prefix.'destinationTitle']) ? $data[$prefix.'destinationTitle']: null;
+		$item->translatedTitle = isset($data[$prefix.'destinationTitle']) ? trim($data[$prefix.'destinationTitle']): null;
 		$item->processedContent = isset($data[$prefix.'destinationContent']) ? $data[$prefix.'destinationContent']: null;
 		$item->wikidataID = isset($data[$prefix.'wikidataID']) ? $data[$prefix.'wikidataID']: null;
 		//$item->redirects[] = isset($data[$prefix.'redirect1']) ? $data[$prefix.'redirect1']: null;
@@ -216,7 +216,7 @@ class ContentItem
 	    // Do not translate French.
 	    if(self::$contentLanguage == 'fr') { return $text; }
 		
-		//return $text;
+		// return $text;
 		
 		putenv('GOOGLE_APPLICATION_CREDENTIALS='.__DIR__.'/../vendors/GoogleTranslateAPIKey.json');
 		
