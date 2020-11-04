@@ -358,9 +358,13 @@ class SpecialContentImporter extends \FormSpecialPage
 			'label' => 'Classe ontologique (Appliquer les changements pour visualiser le résultat)',
 			'options' => array_merge(["Sélectionnez une classe" => null], $destinationClassOptions),
 			'default' => null,
-			'validation-callback' => [$this, 'validateDestinationClass']
 		];
 		
+		if(!isset($_POST['wpsourceCustomTitle'])) // If a custom title is being fetched.
+		{
+			$form['destinationClass']['validation-callback'] = [$this, 'validateDestinationClass'];
+		}
+
 		$form['destinationPreview'] = [
 				'type' => 'submit',
 				'buttonlabel' => 'Appliquer',
@@ -458,7 +462,7 @@ class SpecialContentImporter extends \FormSpecialPage
 	 */
 	public static function validateDestinationClass( $destinationClass, $data ) 
 	{
-		return $destinationClass? true: 'Plus d\'une classe trouvée';
+		return $destinationClass == "" ? 'Plus d\'une classe trouvée': true;
 	}
 
 	/**
