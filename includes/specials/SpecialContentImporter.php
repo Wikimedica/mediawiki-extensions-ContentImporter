@@ -153,28 +153,6 @@ class SpecialContentImporter extends \FormSpecialPage
 			return $form;
 		}
 		
-		// Display the control buttons.		
-		
-		$form['destinationPostpone'] = [
-				'type' => 'submit',
-				'buttonlabel' => 'Reporter',
-				'section' => 'buttons',
-				'flags' => ['normal']
-		];
-		
-		$form['destinationSkip'] = [
-				'type' => 'submit',
-				'buttonlabel' => 'Sauter',
-				'section' => 'buttons',
-				'flags' => ['destructive']
-		];
-		
-		$form['destinationSave'] = [
-				'type' => 'submit',
-				'buttonlabel' => 'Ajouter',
-				'section' => 'buttons',
-		];
-		
 		$session = $this->getRequest()->getSession();
 		$success = false; // if the last importation was a success.
 		
@@ -294,30 +272,37 @@ class SpecialContentImporter extends \FormSpecialPage
 		];
 		
 		$form['sourceSources'] = [ // Save the sources used to build the text.
-				'section' => 'source',
-				'type' => 'hidden',
-				'default' => json_encode($item->sources)
+			'section' => 'source',
+			'type' => 'hidden',
+			'default' => json_encode($item->sources)
 		];
+		
+		if($item->content === '')
+		{
+			$form['sourceContentError'] = [
+				'type' => 'info',
+				'section' => 'source',
+				'raw' => true,
+				'default' => 'Cette page est vide',
+				'cssclass' => 'error'
+			];
+		}
 		
 		$form['sourceContent'] = [
-			'type' => 'textarea',
+			'type' => 'hidden',
 			'section' => 'source',
-			'readonly' => true,
-			'label' => 'Source',
-			'default' => $item->content,
-			'placeholder' => $item->content === '' ? 'Cette page est vide': '',
-			'rows' => 53
+			'default' => $item->content
 		];
-		
+
 		// If the page already exists.
 		if(!$success && $item->translatedTitle && \Title::newFromText($item->translatedTitle)->exists())
 		{
 			$form['pageExists'] = [
-					'section' => 'destination',
-					'type' => 'info',
-					'raw' => true,
-					'default' => wfMessage('contentImporter-page-exists', [$item->translatedTitle])->parse(),
-					'cssclass' => 'error'
+				'section' => 'destination',
+				'type' => 'info',
+				'raw' => true,
+				'default' => wfMessage('contentImporter-page-exists', [$item->translatedTitle])->parse(),
+				'cssclass' => 'error'
 			];
 		}
 		
@@ -422,10 +407,33 @@ class SpecialContentImporter extends \FormSpecialPage
 			'type' => 'textarea',
 			'label' => 'Destination',
 			'default' => $processedText,
-			'readonly' => false
+			'readonly' => false,
+			// 'cols' => 180 // Does not work...
 			//'required' => true
 		];
 		
+		// Display the control buttons.		
+		
+		$form['destinationPostpone'] = [
+			'type' => 'submit',
+			'buttonlabel' => 'Reporter',
+			'section' => 'buttons',
+			'flags' => ['normal']
+		];
+		
+		$form['destinationSkip'] = [
+				'type' => 'submit',
+				'buttonlabel' => 'Sauter',
+				'section' => 'buttons',
+				'flags' => ['destructive']
+		];
+		
+		$form['destinationSave'] = [
+				'type' => 'submit',
+				'buttonlabel' => 'Ajouter',
+				'section' => 'buttons',
+		];
+
 		if($item->content) // If there is content to preview.
 		{
 			$parserOptions = new \ParserOptions();
@@ -548,59 +556,6 @@ class SpecialContentImporter extends \FormSpecialPage
 		$form->suppressDefaultSubmit();
 		
 		$form->setAction($this->getURL());
-		
-		// Shift the following CSS depending if there are errors to display or not.
-		$fieldNames = ['destinationClass'];
-		$nth = 1;
-		$form->loadData();
-		foreach($fieldNames as $n)
-		{
-			if($form->getField($n)->validate($form->mFieldData[$n], $form->mFieldData) !== true)
-			{
-				$nth = 2;
-				break;
-			}
-		}
-		
-		$this->getOutput()->addInlineStyle('
-			@media screen and (min-width: 900px) {
-				div.oo-ui-panelLayout-padded:nth-of-type('.$nth.')
-				{
-					margin-bottom: 0;
-				}
-	
-				div.oo-ui-panelLayout-padded:nth-of-type('.($nth + 1).')
-				{
-					width: 47%;
-					float: left;
-					padding: 1%
-				}
-	
-				div.oo-ui-panelLayout-padded:nth-of-type('.($nth + 2).')
-				{
-					width: 47%;
-					float: right;
-					padding: 1%
-				}
-	
-				.oo-ui-fieldsetLayout-header:nth-of-type('.($nth + 2).')
-				{
-					display:none;
-				}
-	
-				div.oo-ui-panelLayout-padded:nth-of-type('.($nth + 3).')
-				{
-					clear: both;
-				}
-			}
-			
-			.mw-htmlform-field-HTMLSubmitField
-			{
-				display: inline-block;
-				margin-right: 1em;
-			}
-			.success {font-size: 2em; color: green; }
-		');
 		
 		return $form;
 	}
