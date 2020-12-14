@@ -345,7 +345,7 @@ class SpecialContentImporter extends \FormSpecialPage
 			'default' => null,
 		];
 		
-		if(!isset($_POST['wpsourceCustomTitle'])) // If a custom title is being fetched.
+		if(!isset($_POST['wpsourceCustomTitle'])) // If a custom title is being fetched, do not validate.
 		{
 			$form['destinationClass']['validation-callback'] = [$this, 'validateDestinationClass'];
 		}
@@ -470,6 +470,13 @@ class SpecialContentImporter extends \FormSpecialPage
 	 */
 	public static function validateDestinationClass( $destinationClass, $data ) 
 	{
+		/* If the class of the destination content does not match the submitted destination class, this
+		means the user forgot to apply their changes. */
+		if(strpos($data['destinationContent'], '{{Information '.strtolower($destinationClass)) === false)
+		{
+			return "Vous avez oublié d'appliquer votre changement de classe.";
+		}
+		
 		return $destinationClass == "" ? 'Plus d\'une classe trouvée': true;
 	}
 
