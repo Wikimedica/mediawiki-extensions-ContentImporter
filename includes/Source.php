@@ -158,7 +158,7 @@ abstract class Source
 			if($r == $saved->getFullText()) { continue; } // Do not add a redirect that has the same name as the parent.
 			
 			$title = \Title::newFromText($r);
-			$page = \Article::newFromTitle($title, \RequestContext::getMain());
+			$page = \Article::newFromTitle($title, \RequestContext::getMain())->getPage();
 			
 			// Save the content.
 			$status = $page->doEditContent( \ContentHandler::makeContent('#REDIRECTION [['.$saved->getFullText().']]', $title),
@@ -210,7 +210,7 @@ abstract class Source
 		global $wgUser;
 		
 		$title = \Title::newFromText(self::PREFIX.'-'.$this->id.'-'.$page.'.json', NS_MEDIAWIKI);
-		$page = \Article::newFromTitle($title, \RequestContext::getMain());
+		$page = \Article::newFromTitle($title, \RequestContext::getMain())->getPage();
 		
 		// Save the content.
 		$status = $page->doEditContent( \ContentHandler::makeContent(json_encode($array, JSON_PRETTY_PRINT), $title),

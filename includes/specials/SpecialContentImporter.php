@@ -472,7 +472,7 @@ class SpecialContentImporter extends \FormSpecialPage
 	{
 		/* If the class of the destination content does not match the submitted destination class, this
 		means the user forgot to apply their changes. */
-		if(strpos($data['destinationContent'], '{{Information '.strtolower($destinationClass)) === false)
+		if(stripos($data['destinationContent'], '{{Information '.strtolower($destinationClass)) === false)
 		{
 			return "Vous avez oublié d'appliquer votre changement de classe.";
 		}
