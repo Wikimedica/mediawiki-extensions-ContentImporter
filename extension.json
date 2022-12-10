@@ -18,6 +18,7 @@
 		"MediaWiki\\Extension\\ContentImporter\\ContentItem": "includes/ContentItem.php",
 		"MediaWiki\\Extension\\ContentImporter\\MediaWikiContentSource": "includes/MediaWikiContentSource.php",
 		"MediaWiki\\Extension\\ContentImporter\\WikEMContentSource": "sources/WikEMContentSource.php",
+		"MediaWiki\\Extension\\ContentImporter\\WikiMSKContentSource": "sources/WikiMSKContentSource.php",
 		"MediaWiki\\Extension\\ContentImporter\\WikiDocContentSource": "sources/WikiDocContentSource.php",
 		"MediaWiki\\Extension\\ContentImporter\\WikipediaENContentSource": "sources/WikipediaENContentSource.php",
 		"MediaWiki\\Extension\\ContentImporter\\WikipediaFRContentSource": "sources/WikipediaFRContentSource.php",

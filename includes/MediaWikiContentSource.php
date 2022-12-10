@@ -19,8 +19,6 @@ abstract class MediaWikiContentSource extends Source
 	
 	public $apiUrl;
 	
-	public $category;
-	
 	public function getContentItem($title = null)
 	{
 		if($title === null)

@@ -62,6 +62,8 @@ class SpecialContentImporter extends \FormSpecialPage
 					return 'Importer à partir de WikEM';
 				case 'wikidoc':
 					return 'Importer à partir de WikiDoc';
+				case 'wikimsk':
+					return 'Importer à partir de WikiMSK';
 				case 'wikipedia_en':
 					return 'Importer à partir de Wikipedia (en)';
 				case 'wikipedia_fr':
@@ -82,6 +84,9 @@ class SpecialContentImporter extends \FormSpecialPage
 		{
 			case 'wikem':
 				$this->source = new WikEMContentSource();
+				break;
+			case 'wikimsk':
+				$this->source = new WikiMSKContentSource();
 				break;
 			case 'wikidoc':
 				$this->source = new WikiDocContentSource();
@@ -139,6 +144,7 @@ class SpecialContentImporter extends \FormSpecialPage
 					    'Wikipedia (en)' => 'wikipedia_en', 
 					    'Wikipedia (fr)' => 'wikipedia_fr', 
 					    'WikEM' => 'wikem',
+						'WikiMSK' => 'wikimsk',
 					    //'Doknosis observation' => 'doknosis_observation'
 					], //'HPO' => 'hpo', 'Disease Ontology' => 'do'],
 					'autofocus' => true,
