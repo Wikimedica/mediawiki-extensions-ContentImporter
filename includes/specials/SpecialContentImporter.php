@@ -442,7 +442,7 @@ class SpecialContentImporter extends \FormSpecialPage
 
 		if($item->content) // If there is content to preview.
 		{
-			$parserOptions = new \ParserOptions();
+			$parserOptions = new \ParserOptions($this->getUser());
 			$parserOptions->setIsPreview(true);
 			$title = \Title::newFromText($item->translatedTitle);
 			$content = \ContentHandler::makeContent( $processedText, $title );

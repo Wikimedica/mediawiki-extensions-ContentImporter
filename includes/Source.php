@@ -10,6 +10,8 @@
 
 namespace MediaWiki\Extension\ContentImporter;
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * Abstract class for a content source.
  */
@@ -71,9 +73,11 @@ abstract class Source
 	 * */
 	protected static function getJSONPage($name)
 	{
-		$article = \Article::newFromTitle(\Title::newFromText(self::PREFIX.'-'.$name.'.json', NS_MEDIAWIKI), \RequestContext::getMain());
+		$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle(\Title::newFromText(self::PREFIX.'-'.$name.'.json', NS_MEDIAWIKI), \RequestContext::getMain());
 		
-		$page = $article->getRevision() ? $article->getRevision()->getContent()->getNativeData(): [];
+		$content = $page->getContent( \MediaWiki\Revision\RevisionRecord::RAW );
+		try { $page = \ContentHandler::getContentText( $content ); } 
+		catch ( \Exception $e ) { return []; }
 		
 		if(!$page) { return []; } // There was not content.
 		
@@ -161,15 +165,14 @@ abstract class Source
 			$page = \Article::newFromTitle($title, \RequestContext::getMain())->getPage();
 			
 			// Save the content.
-			$status = $page->doEditContent( \ContentHandler::makeContent('#REDIRECTION [['.$saved->getFullText().']]', $title),
+			$status = $page->doUserEditContent( \ContentHandler::makeContent('#REDIRECTION [['.$saved->getFullText().']]', $title),
+				$wgUser,
 				'Création de la redirection',
 				0, // Flags
 				false, // OriginalRevId
-				$wgUser,
-				null,
 				[self::MODIFICATION_TAG]
 			);
-			
+
 			$watchlist->addWatch($wgUser, $title);
 		}
 		
@@ -213,12 +216,11 @@ abstract class Source
 		$page = \Article::newFromTitle($title, \RequestContext::getMain())->getPage();
 		
 		// Save the content.
-		$status = $page->doEditContent( \ContentHandler::makeContent(json_encode($array, JSON_PRETTY_PRINT), $title),
+		$status = $page->doUserEditContent( \ContentHandler::makeContent(json_encode($array, JSON_PRETTY_PRINT), $title),
+			$wgUser,
 			$message,
 			0, // Flags
 			false, // OriginalRevId
-			$wgUser,
-			null,
 			[self::MODIFICATION_TAG]
 		);
 		

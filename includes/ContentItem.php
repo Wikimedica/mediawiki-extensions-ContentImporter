@@ -12,6 +12,7 @@ namespace MediaWiki\Extension\ContentImporter;
 
 use Google\Cloud\Translate\TranslateClient;
 use WikiPage;
+use MediaWiki\MediaWikiServices;
 
 /**
  * This class represents a content item fetched from a source.
@@ -516,8 +517,13 @@ class ContentItem
 		
 		if($this->class != null) // If we should match to an existing class.
 		{
-			$article = \Article::newFromTitle(\Title::newFromText($this->class.'/Prototype', NS_CLASS), \RequestContext::getMain());
-			$prototype = $article->getRevision() ? $article->getRevision()->getContent()->getNativeData(): '';
+			$page = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle(\Title::newFromText($this->class.'/Prototype', NS_CLASS), \RequestContext::getMain());
+		
+			$content = $page->getContent( \MediaWiki\Revision\RevisionRecord::RAW );
+			try { $prototype = \ContentHandler::getContentText( $content ); } 
+			catch ( \Exception $e ) { $prototype = ''; }
+			
+
 			$prototype = str_replace('<includeonly></includeonly>', '', $prototype);
 			$prototype = self::process($prototype);
 			unset($prototype['Notes']); // This is not used by other sources.
@@ -748,15 +754,14 @@ class ContentItem
 		$page = new WikiPage($title);
 		
 		// Save the imported page.
-		$status = $page->doEditContent( \ContentHandler::makeContent($this->processedContent, $title),
+		$status = $page->doUserEditContent( \ContentHandler::makeContent($this->processedContent, $title),
+			$wgUser,	
 			'Importé depuis '.ucfirst(self::$source->name),
 			0, // Flags
 			false, // OriginalRevId
-			$wgUser,
-			null,
 			[self::MODIFICATION_TAG]
 		);
-		
+
 		return $title;
 	}
 }
